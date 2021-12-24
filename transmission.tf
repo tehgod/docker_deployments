@@ -1,7 +1,7 @@
 variable "username" {
   description = "OpenVPN Username"
   type        = string
-  
+  sensitive   = true
 }
 
 variable "password" {
@@ -60,8 +60,8 @@ resource "docker_container" "transmission" {
   }
   env = [
       "OPENVPN_PROVIDER=NORDVPN",
-      "OPENVPN_USERNAME=${username}",
-      "OPENVPN_PASSWORD=${password}",
+      "OPENVPN_USERNAME=${var.username}",
+      "OPENVPN_PASSWORD=${var.password}",
       "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60",
       "LOCAL_NETWORK=192.168.86.0/24"
 	]

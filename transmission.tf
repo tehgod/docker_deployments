@@ -11,7 +11,7 @@ variable "password" {
 }
 
 resource "docker_image" "transmission" {
-  name = "haugene/transmission-openvpn/latest"
+  name = "haugene/transmission-openvpn:latest"
   force_remove = true
 }
 

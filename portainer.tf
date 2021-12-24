@@ -1,5 +1,5 @@
 resource "docker_image" "portainer" {
-  name = "portainer/portainer-ce/latest"
+  name = "portainer/portainer-ce:latest"
   force_remove = true
 }
 

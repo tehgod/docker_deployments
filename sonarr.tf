@@ -1,5 +1,5 @@
 resource "docker_image" "sonarr" {
-  name = "linuxserver/sonarr/latest"
+  name = "linuxserver/sonarr:latest"
   force_remove = true
 }
 

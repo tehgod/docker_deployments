@@ -12,7 +12,7 @@ provider "docker" {
 }
 
 resource "docker_image" "jackett" {
-  name = "linuxserver/jackett/latest"
+  name = "linuxserver/jackett:latest"
   force_remove = true
 }
 

@@ -1,5 +1,18 @@
+variable "username" {
+  description = "OpenVPN Username"
+  type        = string
+  
+}
+
+variable "password" {
+  description = "OpenVPN Password"
+  type        = string
+  sensitive   = true
+}
+
 resource "docker_image" "transmission" {
   name = "haugene/transmission-openvpn"
+  force_remove = true
 }
 
 resource "docker_container" "transmission" {
@@ -47,28 +60,9 @@ resource "docker_container" "transmission" {
   }
   env = [
       "OPENVPN_PROVIDER=NORDVPN",
-      "OPENVPN_USERNAME=username",
-      "OPENVPN_PASSWORD=password",
+      "OPENVPN_USERNAME=${username}",
+      "OPENVPN_PASSWORD=${password}",
       "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60",
       "LOCAL_NETWORK=192.168.86.0/24"
 	]
 }
-
-# resource "docker_image" "transmission_proxy" {
-#   name = "haugene/transmission-openvpn-proxy"
-# }
-
-# resource "docker_container" "transmission_proxy" {
-#     name = "transmission_proxy"
-#     image = docker_image.transmission_proxy.latest
-#     links = [docker_container.transmission.name]
-#     ports {
-#         internal = 8080
-#         external = 8080
-#     }
-#     volumes {
-#         container_path = "/etc/localtime"
-#         host_path = "/etc/localtime"
-#         read_only = true
-#     }
-# }

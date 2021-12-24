@@ -1,5 +1,6 @@
 resource "docker_image" "sonarr" {
   name = "linuxserver/sonarr"
+  force_remove = true
 }
 
 resource "docker_container" "sonarr" {

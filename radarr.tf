@@ -1,5 +1,6 @@
 resource "docker_image" "radarr" {
   name = "linuxserver/radarr"
+  force_remove = true
 }
 
 resource "docker_container" "radarr" {

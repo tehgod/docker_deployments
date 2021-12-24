@@ -1,5 +1,5 @@
 resource "docker_image" "ombi" {
-  name = "linuxserver/ombi"
+  name = "linuxserver/ombi/latest"
   force_remove = true
 }
 

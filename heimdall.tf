@@ -1,5 +1,5 @@
 resource "docker_image" "heimdall" {
-  name = "linuxserver/heimdall"
+  name = "linuxserver/heimdall/latest"
   force_remove = true
 }
 

@@ -1,5 +1,5 @@
 resource "docker_image" "watchtower" {
-  name = "containrrr/watchtower"
+  name = "containrrr/watchtower/latest"
   force_remove = true
 }
 

@@ -7,7 +7,6 @@ resource "docker_container" "mongo" {
     name = "mongo"
     image = docker_image.mongo.latest
     restart = "always"
-    rm = true
     ports {
         internal = 27017
         external = 27017

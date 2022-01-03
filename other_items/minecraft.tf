@@ -9,7 +9,7 @@ variable "server_name" {
 }
 
 resource "docker_container" "minecraft" {
-    name = "MC Server ${var.server_name}"
+    name = "MC_Server_${var.server_name}"
     image = docker_image.minecraft.latest
     restart = "always"
     ports {

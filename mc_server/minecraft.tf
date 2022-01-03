@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "2.15.0"
+    }
+  }
+}
+
+provider "docker" {
+  host = "unix:///var/run/docker.sock"
+}
+
 resource "docker_image" "minecraft" {
   name = "itzg/minecraft-server:latest"
   force_remove = true

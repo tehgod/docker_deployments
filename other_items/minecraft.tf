@@ -12,6 +12,7 @@ resource "docker_container" "minecraft" {
     name = "MC_Server_${var.server_name}"
     image = docker_image.minecraft.latest
     restart = "always"
+    rm = true
     ports {
         internal = 25565
         external = 25565

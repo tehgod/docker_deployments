@@ -3,6 +3,11 @@ resource "docker_image" "minecraft" {
   force_remove = true
 }
 
+variable "password" {
+  description = "Desired Server Name"
+  type        = string
+}
+
 resource "docker_container" "minecraft" {
     name = "MC Server ${var.server_name}"
     image = docker_image.minecraft.latest

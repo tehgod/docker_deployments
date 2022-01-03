@@ -3,7 +3,7 @@ resource "docker_image" "minecraft" {
   force_remove = true
 }
 
-variable "password" {
+variable "server_name" {
   description = "Desired Server Name"
   type        = string
 }

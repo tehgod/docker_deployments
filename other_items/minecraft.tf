@@ -1,5 +1,5 @@
 resource "docker_image" "minecraft" {
-  name = "itzg/minecraft:latest"
+  name = "itzg/minecraft-server:latest"
   force_remove = true
 }
 

@@ -22,6 +22,10 @@ resource "docker_container" "syncthing" {
       container_path = "/config"
       host_path = "${pathexpand("~")}/config/app_config/syncthing"
   }
+  volumes {
+      container_path = "/syncthing"
+      host_path = "${pathexpand("~")}/syncthing"
+  }
   ports {
         internal = 8384
         external = 8384

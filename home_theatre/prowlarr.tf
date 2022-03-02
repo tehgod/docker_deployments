@@ -1,5 +1,5 @@
 resource "docker_image" "prowlarr" {
-  name = "lscr.io/linuxserver/prowlarr"
+  name = "lscr.io/linuxserver/prowlarr:develop"
   force_remove = true
 }
 

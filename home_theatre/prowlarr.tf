@@ -1,9 +1,5 @@
 resource "docker_image" "prowlarr" {
-<<<<<<< Updated upstream
   name = "lscr.io/linuxserver/prowlarr:develop"
-=======
-  name = "linuxserver/prowlarr:develop"
->>>>>>> Stashed changes
   force_remove = true
 }
 

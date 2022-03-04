@@ -12,7 +12,7 @@ resource "docker_container" "overseerr" {
         "TZ=America/Kentucky/Louisville"
     ]
     volumes {
-        container_path = "/config"  
+        container_path = "/app/config"  
         host_path = "${pathexpand("~")}/config/app_config/overseerr"
     }
     ports {

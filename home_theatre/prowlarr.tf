@@ -1,5 +1,9 @@
 resource "docker_image" "prowlarr" {
+<<<<<<< HEAD
   name = "linuxserver/prowlarr:develop"
+=======
+  name = "lscr.io/linuxserver/prowlarr:develop"
+>>>>>>> fb0aab61f4194218a316eb9567b08ac4754d2878
   force_remove = true
 }
 

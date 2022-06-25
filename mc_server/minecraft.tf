@@ -32,7 +32,8 @@ resource "docker_container" "minecraft" {
     env = [
         "EULA=TRUE",
         "DIFFICULTY=hard",
-        "SERVER_NAME=${var.server_name}"
+        "SERVER_NAME=${var.server_name}",
+	"HARDCORE=true"
     ]
     volumes {
         container_path = "/data"

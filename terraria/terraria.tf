@@ -20,7 +20,6 @@ resource "docker_container" "terraria" {
     name = "terraria"
     image = docker_image.terraria.latest
     rm = true
-    restart = always
     stdin_open = true
     tty = true
     ports {

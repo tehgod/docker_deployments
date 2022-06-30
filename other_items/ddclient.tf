@@ -5,7 +5,7 @@ resource "docker_image" "ddclient" {
 
 resource "docker_container" "ddclient" {
   name = "ddclient"
-  image = docker_image.syncthing.latest
+  image = docker_image.ddclient.latest
   restart = "unless-stopped"
   env = [
       "PUID=1000",

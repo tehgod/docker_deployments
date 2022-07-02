@@ -3,7 +3,7 @@ locals {
 }
 
 module "terraria" {
-    source = "./modules"
+    source = "../modules"
     container_name = local.container_name
     resource_location = "kaysond/docker-terraria"
     stdin_open = true

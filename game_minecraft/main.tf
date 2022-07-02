@@ -3,7 +3,7 @@ locals {
 }
 
 module "minecraft" {
-    source = "./modules"
+    source = "../modules"
     container_name = "mc_server_${local.server_name}"
     resource_location = "itzg/minecraft-server:latest"
     env = [

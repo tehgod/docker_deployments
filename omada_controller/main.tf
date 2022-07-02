@@ -3,7 +3,7 @@ locals {
 }
 
 module "omada" {
-    source = "./modules"
+    source = "../modules"
     container_name = local.container_name
     resource_location = "mbentley/omada-controller:latest"
     network_mode = "host"

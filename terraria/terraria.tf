@@ -19,7 +19,6 @@ resource "docker_image" "terraria" {
 resource "docker_container" "terraria" {
     name = "terraria"
     image = docker_image.terraria.latest
-    rm = true
     stdin_open = true
     tty = true
     ports {

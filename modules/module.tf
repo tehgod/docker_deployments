@@ -25,6 +25,7 @@ resource "docker_container" "my_docker_container" {
   stdin_open = var.stdin_open
   tty = var.tty
   dns = []
+  log_opts = var.log_opts
   dynamic "volumes" {
     for_each = var.docker_volumes
     content {
@@ -40,5 +41,4 @@ resource "docker_container" "my_docker_container" {
       protocol = ports.value["protocol"]
     }
   }
-  
 }

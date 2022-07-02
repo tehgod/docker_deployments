@@ -66,3 +66,8 @@ variable "docker_volumes" {
   type = list(map(any))
   default = []
 }
+
+variable "log_opts" {
+  type = map(any)
+  default = {}
+}

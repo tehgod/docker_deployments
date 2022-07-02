@@ -1,3 +1,7 @@
+locals {
+  container_name = ""
+}
+
 module "terraria" {
     source = "./modules"
     container_name = local.container_name

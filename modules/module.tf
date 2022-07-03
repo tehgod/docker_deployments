@@ -41,4 +41,16 @@ resource "docker_container" "my_docker_container" {
       protocol = ports.value["protocol"]
     }
   }
+  dynamic "devices" {
+    for_each = var.devices
+    content {
+      host_path = devices.value["host_path"]
+    }
+  }
+  dynamic "capabilities" {
+    for_each = var.capabilities
+    content {
+      add = capabilities.value["add"]
+    }
+  }
 }

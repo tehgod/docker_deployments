@@ -42,7 +42,6 @@ variable "stdin_open" {
   type = bool
   default = false
 }
-
 variable "tty" {
   type = bool
   default = false
@@ -51,7 +50,6 @@ variable "dns" {
   type = list(string)
   default = []
 }
-
 variable "devices" {
   type = list(map(any))
   default = []

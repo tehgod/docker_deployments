@@ -96,8 +96,7 @@ module "transmission" {
       "OPENVPN_USERNAME=${var.openvpn_username}",
       "OPENVPN_PASSWORD=${var.openvpn_password}",
       "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60",
-      "LOCAL_NETWORK=192.168.86.0/24",
-      "TZ=America/Kentucky/Louisville"
+      "LOCAL_NETWORK=192.168.86.0/24"
 	]
     dns = [
       "8.8.8.8",
@@ -117,6 +116,7 @@ module "transmission" {
         {"host_path":"${pathexpand("~")}/config/app_config/transmission/", "container_path":"/data/transmission-home"},
         {"host_path":"${pathexpand("~")}/config/downloads/complete", "container_path":"/data/completed"},
         {"host_path":"${pathexpand("~")}/config/downloads/incomplete", "container_path":"/data/incomplete"},
-        {"host_path":"${pathexpand("~")}/config/downloads/torrent-blackhole", "container_path":"/data/watch"}
+        {"host_path":"${pathexpand("~")}/config/downloads/torrent-blackhole", "container_path":"/data/watch"},
+        {"host_path":"/etc/localtime", "container_path":"/etc/localtime"}
     ]
 }

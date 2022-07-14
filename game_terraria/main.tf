@@ -22,7 +22,7 @@ module "terraria" {
     ]
 }
 
-module "terraria" {
+module "terraria2" {
     source = "../modules"
     container_name = local.server2_name
     resource_location = "shelby_terraria_image"

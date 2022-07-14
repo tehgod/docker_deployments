@@ -17,8 +17,8 @@ module "terraria" {
         {"internal":7777, "external":7777, "protocol":"tcp"}
     ]
     docker_volumes = [
-        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${server1_name}/world", "container_path":"/world"},
-        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${server1_name}/config", "container_path":"/config"}
+        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server1_name}/world", "container_path":"/world"},
+        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server1_name}/config", "container_path":"/config"}
     ]
 }
 
@@ -36,6 +36,6 @@ module "terraria2" {
         {"internal":7778, "external":7778, "protocol":"tcp"}
     ]
     docker_volumes = [
-        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${server2_name}/server", "container_path":"/server"},
+        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server2_name}/server", "container_path":"/server"},
     ]
 }

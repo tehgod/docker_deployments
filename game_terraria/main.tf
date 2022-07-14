@@ -1,6 +1,7 @@
 locals {
   server1_name = "terraria_nonmodded"
   server2_name = "terraria_modded"
+  server3_name = "terraria_alans_golfcourse"
 }
 
 module "terraria" {
@@ -22,10 +23,28 @@ module "terraria" {
     ]
 }
 
-module "terraria2" {
+# module "terraria2" {
+#     source = "../modules"
+#     container_name = local.server2_name
+#     resource_location = "shelby_terraria_image"
+#     stdin_open = true
+#     tty = true
+#     env = [
+#         "PUID=1000",
+#         "PGID=1000"
+#     ]
+#     docker_ports = [
+#         {"internal":7778, "external":7778, "protocol":"tcp"}
+#     ]
+#     docker_volumes = [
+#         {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server2_name}/server", "container_path":"/server"},
+#     ]
+# }
+
+module "terraria3" {
     source = "../modules"
-    container_name = local.server2_name
-    resource_location = "shelby_terraria_image"
+    container_name = local.server3_name
+    resource_location = "kaysond/docker-terraria"
     stdin_open = true
     tty = true
     env = [
@@ -33,9 +52,10 @@ module "terraria2" {
         "PGID=1000"
     ]
     docker_ports = [
-        {"internal":7778, "external":7778, "protocol":"tcp"}
+        {"internal":7887, "external":7887, "protocol":"tcp"}
     ]
     docker_volumes = [
-        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server2_name}/server", "container_path":"/server"},
+        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server3_name}/world", "container_path":"/world"},
+        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server3_name}/config", "container_path":"/config"}
     ]
 }

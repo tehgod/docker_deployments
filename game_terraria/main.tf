@@ -23,23 +23,24 @@ module "terraria" {
     ]
 }
 
-# module "terraria2" {
-#     source = "../modules"
-#     container_name = local.server2_name
-#     resource_location = "shelby_terraria_image"
-#     stdin_open = true
-#     tty = true
-#     env = [
-#         "PUID=1000",
-#         "PGID=1000"
-#     ]
-#     docker_ports = [
-#         {"internal":7778, "external":7778, "protocol":"tcp"}
-#     ]
-#     docker_volumes = [
-#         {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server2_name}/server", "container_path":"/server"},
-#     ]
-# }
+module "terraria2" {
+    source = "../modules"
+    container_name = local.server2_name
+    resource_location = "shelby_terraria_image"
+    force_remove = false
+    stdin_open = true
+    tty = true
+    env = [
+        "PUID=1000",
+        "PGID=1000"
+    ]
+    docker_ports = [
+        {"internal":7778, "external":7778, "protocol":"tcp"}
+    ]
+    docker_volumes = [
+        {"host_path":"${pathexpand("~")}/config/app_config/terraria/${local.server2_name}/server", "container_path":"/server"},
+    ]
+}
 
 module "terraria3" {
     source = "../modules"

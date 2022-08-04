@@ -31,3 +31,15 @@ module "ddclient" {
         {"host_path":"${pathexpand("~")}/config/app_config/ddclient", "container_path":"/config"}
     ]
 }
+
+module "changedetection" {
+    source = "../modules"
+    container_name = "changedetection.io"
+    resource_location = "dgtlmoon/changedetection.io:latest"
+    docker_ports = [
+        {"internal":5000, "external":5000, "protocol":"tcp"}
+    ]
+    docker_volumes = [
+        {"host_path":"${pathexpand("~")}/config/app_config/changedetection", "container_path":"/datastore"}
+    ]
+}

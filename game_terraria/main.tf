@@ -29,7 +29,7 @@ module "terraria2" {
     container_name = local.server2_name
     resource_location = "tml_image"
     docker_build = [
-        {"path":local.server2_image_path,"tags":["tml_image"]}
+        {"path":local.server2_image_path,"tag":"tml_image"}
     ]
     force_remove = false
     stdin_open = true

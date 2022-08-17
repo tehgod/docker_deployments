@@ -18,7 +18,7 @@ resource "docker_image" "my_docker_image" {
     for_each = var.docker_build
     content {
       path = build.value["path"]
-      tag = [build.value["tag"]]
+      tag = build.value["tags"]
       force_remove = true
     }
   }

@@ -1,6 +1,7 @@
 locals {
   server1_name = "terraria_nonmodded"
   server2_name = "terraria_modded"
+  server2_image_path = "${pathexpand("~")}/config/app_config/terraria/terraria_modded/server/"
   server3_name = "terraria_alans_golfcourse"
 }
 
@@ -26,7 +27,11 @@ module "terraria" {
 module "terraria2" {
     source = "../modules"
     container_name = local.server2_name
-    resource_location = "shelby_terraria_image"
+    resource_location = "tml_image"
+    build = {
+        "path":local.server2_image_path,
+        "tag":"tml_image"
+    }
     force_remove = false
     stdin_open = true
     tty = true

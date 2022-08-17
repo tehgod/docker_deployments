@@ -69,3 +69,8 @@ variable "log_opts" {
   type = map(any)
   default = {}
 }
+
+variable "docker_build" {
+  type = map(any)
+  default = {}
+}

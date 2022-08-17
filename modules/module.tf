@@ -14,6 +14,14 @@ provider "docker" {
 resource "docker_image" "my_docker_image" {
   name = "${var.resource_location}"
   force_remove = var.force_remove
+  dynamic "build" {
+    for_each = var.docker_build
+    content {
+      path = build.value["path"]
+      tag = build.value["tag"]
+      force_remove = true
+    }
+  }
 }
 
 resource "docker_container" "my_docker_container" {

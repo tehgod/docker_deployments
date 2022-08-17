@@ -28,7 +28,7 @@ module "terraria2" {
     source = "../modules"
     container_name = local.server2_name
     resource_location = "tml_image"
-    build = {
+    docker_build = {
         "path":local.server2_image_path,
         "tag":"tml_image"
     }

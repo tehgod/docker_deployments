@@ -43,3 +43,19 @@ module "changedetection" {
         {"host_path":"${pathexpand("~")}/config/app_config/changedetection", "container_path":"/datastore"}
     ]
 }
+
+
+module "nginxpm" {
+    source = "../modules"
+    container_name = "nginxproxymanager"
+    resource_location = "c21/nginx-proxy-manager:latest"
+    docker_ports = [
+        {"internal":80, "external":80, "protocol":"tcp"},
+        {"internal":81, "external":81, "protocol":"tcp"},
+        {"internal":443, "external":443, "protocol":"tcp"}
+    ]
+    docker_volumes = [
+        {"host_path":"${pathexpand("~")}/config/app_config/nginxpm/data", "container_path":"/data"},
+        {"host_path":"${pathexpand("~")}/config/app_config/nginxpm/letsencrypt", "container_path":"/etc/letsencrypt"}
+    ]
+}

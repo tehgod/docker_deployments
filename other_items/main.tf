@@ -48,7 +48,7 @@ module "changedetection" {
 module "nginxpm" {
     source = "../modules"
     container_name = "nginxproxymanager"
-    resource_location = "c21/nginx-proxy-manager:latest"
+    resource_location = "jc21/nginx-proxy-manager:latest"
     docker_ports = [
         {"internal":80, "external":80, "protocol":"tcp"},
         {"internal":81, "external":81, "protocol":"tcp"},

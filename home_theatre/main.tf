@@ -88,6 +88,7 @@ module "bazarr" {
     docker_volumes = [
         {"host_path":"${pathexpand("~")}/config/app_config/bazarr", "container_path":"/config"},
         {"host_path":"${pathexpand("~")}/config/complete/movies", "container_path":"/movies"},
+        {"host_path":"${pathexpand("~")}/config/complete/movies", "container_path":"/downloads"},
         {"host_path":"${pathexpand("~")}/config/complete/tv_shows", "container_path":"/tv"}
     ]
 }

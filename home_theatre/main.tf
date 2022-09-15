@@ -44,7 +44,7 @@ module "radarr" {
         "TZ=America/Kentucky/Louisville"
     ]
     docker_ports = [
-        {"internal":25565, "external":25565, "protocol":"tcp"}
+        {"internal":7878, "external":7878, "protocol":"tcp"}
     ]
     docker_volumes = [
         {"host_path":"${pathexpand("~")}/config/app_config/radarr", "container_path":"/config"},
@@ -64,12 +64,31 @@ module "sonarr" {
         "TZ=America/Kentucky/Louisville"
     ]
     docker_ports = [
-        {"internal":25565, "external":25565, "protocol":"tcp"}
+        {"internal":8989, "external":8989, "protocol":"tcp"}
     ]
     docker_volumes = [
         {"host_path":"${pathexpand("~")}/config/app_config/sonarr", "container_path":"/config"},
         {"host_path":"${pathexpand("~")}/config/complete/tv_shows", "container_path":"/tv_shows"},
         {"host_path":"${pathexpand("~")}/config/downloads/complete", "container_path":"/data/completed"}
+    ]
+}
+
+module "bazarr" {
+    source = "../modules"
+    container_name = "bazarr"
+    resource_location = "linuxserver/bazarr:latest"
+    env = [
+        "PUID=1000",
+        "PGID=1000",
+        "TZ=America/Kentucky/Louisville"
+    ]
+    docker_ports = [
+        {"internal":6767, "external":6767, "protocol":"tcp"}
+    ]
+    docker_volumes = [
+        {"host_path":"${pathexpand("~")}/config/app_config/bazarr", "container_path":"/config"},
+        {"host_path":"${pathexpand("~")}/config/complete/movies", "container_path":"/movies"},
+        {"host_path":"${pathexpand("~")}/config/complete/tv_shows", "container_path":"/tv"}
     ]
 }
 

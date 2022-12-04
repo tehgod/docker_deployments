@@ -59,3 +59,16 @@ module "nginxpm" {
         {"host_path":"${pathexpand("~")}/config/app_config/nginxpm/letsencrypt", "container_path":"/etc/letsencrypt"}
     ]
 }
+
+module "photoprism" {
+    source = "../modules"
+    container_name = "photoprism"
+    resource_location = "photoprism/photoprism:latest"
+    docker_ports = [
+        {"internal":2342, "external":2342, "protocol":"tcp"}
+    ]
+    env = [
+        "PHOTOPRISM_UPLOAD_NSFW=true",
+        "PHOTOPRISM_ADMIN_PASSWORD=insecure"
+    ]
+}

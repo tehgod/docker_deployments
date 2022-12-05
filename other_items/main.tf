@@ -73,6 +73,7 @@ module "photoprism" {
     ]
     docker_volumes = [
         {"host_path":"${pathexpand("~")}/config/app_config/photoprism", "container_path":"/photoprism/storage"},
-        {"host_path":"${pathexpand("~")}/photoprism", "container_path":"/photoprism/originals"}
+        {"host_path":"${pathexpand("~")}/photoprism/shelby_originals", "container_path":"/photoprism/originals"},
+        {"host_path":"${pathexpand("~")}/photoprism/shelby_import", "container_path":"/photoprism/import"}
     ]
 }

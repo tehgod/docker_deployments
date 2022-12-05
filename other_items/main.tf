@@ -69,7 +69,9 @@ module "photoprism" {
     ]
     env = [
         "PHOTOPRISM_UPLOAD_NSFW=true",
-        "PHOTOPRISM_ADMIN_PASSWORD=insecure"
+        "PHOTOPRISM_ADMIN_PASSWORD=insecure",
+        "PHOTOPRISM_UID=1000",
+        "PHOTOPRISM_GID=1000"
     ]
     docker_volumes = [
         {"host_path":"${pathexpand("~")}/config/app_config/photoprism", "container_path":"/photoprism/storage"},

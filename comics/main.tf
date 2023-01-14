@@ -3,7 +3,7 @@ module "syncthing" {
     container_name = "kavita"
     resource_location = "kizaing/kavita:latest"
     docker_ports = [
-        {"internal":5000, "external":5000, "protocol":"tcp"}
+        {"internal":5050, "external":5050, "protocol":"tcp"}
     ]
     docker_volumes = [
         {"host_path":"${pathexpand("~")}/config/app_config/kavita", "container_path":"/kavita/config"},

@@ -23,9 +23,9 @@ module "Mariadb" {
     resource_location = "mariadb:latest"
     network_mode = "host"
     env = [
-        "MARIADB_USER=${var.maria_db_user}}",
-        "MARIADB_PASSWORD=${var.maria_db_user_pw}}",
-        "MARIADB_ROOT_PASSWORD=my-${var.maria_db_root_pw}}-pw"
+        "MARIADB_USER=${var.maria_db_user}",
+        "MARIADB_PASSWORD=${var.maria_db_user_pw}",
+        "MARIADB_ROOT_PASSWORD=${var.maria_db_root_pw}"
     ]
     docker_ports = [
         {"internal":3306, "external":3306, "protocol":"tcp"}

@@ -9,8 +9,7 @@ module "minecraft" {
     env = [
         "EULA=TRUE",
         "DIFFICULTY=hard",
-        "SERVER_NAME=${local.server_name}",
-	    "HARDCORE=true"
+        "SERVER_NAME=${local.server_name}"
     ]
     docker_ports = [
         {"internal":25565, "external":25565, "protocol":"tcp"}

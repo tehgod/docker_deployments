@@ -116,7 +116,11 @@ module "transmission" {
       "OPENVPN_USERNAME=${var.openvpn_username}",
       "OPENVPN_PASSWORD=${var.openvpn_password}",
       "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60",
-      "LOCAL_NETWORK=192.168.86.0/24"
+      "LOCAL_NETWORK=192.168.86.0/24",
+      "TRANSMISSION_RATIO_LIMIT=0",
+      "TRANSMISSION_RATIO_LIMIT_ENABLED=true",
+      "TRANSMISSION_IDLE_SEEDING_LIMIT=0",
+      "TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED=true"
 	]
     dns = [
       "8.8.8.8",

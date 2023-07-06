@@ -20,7 +20,6 @@ module "omada" {
     ]
     docker_volumes = [
         {"host_path":"${pathexpand("~")}/config/app_config/omada/data", "container_path":"/opt/tplink/EAPController/data"},
-        {"host_path":"${pathexpand("~")}/config/app_config/omada/work", "container_path":"/opt/tplink/EAPController/work"},
         {"host_path":"${pathexpand("~")}/config/app_config/omada/logs", "container_path":"/opt/tplink/EAPController/logs"}
     ]
 }

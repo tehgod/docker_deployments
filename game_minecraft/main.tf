@@ -1,5 +1,5 @@
 locals {
-  server_name = ""
+  server_name = "lynch_mob_server"
 }
 
 module "minecraft" {
@@ -9,7 +9,8 @@ module "minecraft" {
     env = [
         "EULA=TRUE",
         "DIFFICULTY=hard",
-        "SERVER_NAME=${local.server_name}"
+        "SERVER_NAME=${local.server_name}",
+	"MEMORY=2G"
     ]
     docker_ports = [
         {"internal":25565, "external":25565, "protocol":"tcp"}

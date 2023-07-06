@@ -74,8 +74,3 @@ variable "docker_build" {
   type = list(map(any))
   default = []
 }
-
-variable "sysctl" {
-  type = map(string)
-  default = {}
-}

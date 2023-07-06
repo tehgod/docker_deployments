@@ -34,7 +34,6 @@ resource "docker_container" "my_docker_container" {
   tty = var.tty
   dns = []
   log_opts = var.log_opts
-  sysctls = var.sysctl
   dynamic "volumes" {
     for_each = var.docker_volumes
     content {

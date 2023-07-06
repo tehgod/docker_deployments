@@ -1,31 +1,15 @@
-variable "maria_db_user" {
-  description = "MariaDB Username"
-  type        = string
-  sensitive   = true
-}
-
-#defined in secret autovars
-variable "maria_db_user_pw" {
+variable "sql_root_pw" {
   description = "MariaDB Password"
   type        = string
   sensitive   = true
 }
 
-variable "maria_db_root_pw" {
-  description = "MariaDB Password"
-  type        = string
-  sensitive   = true
-}
-
-module "Mariadb" {
+module "MySQL" {
     source = "../modules"
-    container_name = "mariadb"
-    resource_location = "mariadb:latest"
-    network_mode = "host"
+    container_name = "MySQL"
+    resource_location = "mysql:latest"
     env = [
-        "MARIADB_USER=${var.maria_db_user}",
-        "MARIADB_PASSWORD=${var.maria_db_user_pw}",
-        "MARIADB_ROOT_PASSWORD=${var.maria_db_root_pw}"
+        "MYSQL_ROOT_PASSWORD=${var.sql_root_pw}"
     ]
     docker_ports = [
         {"internal":3306, "external":3306, "protocol":"tcp"}

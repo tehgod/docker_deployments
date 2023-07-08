@@ -11,7 +11,7 @@ services:
       - "TZ=America/Kentucky/Louisville"
     ports:
       - 443:4443
-      - 80:7888
+      - 7888:80
     restart: unless-stopped
 
   portainer:

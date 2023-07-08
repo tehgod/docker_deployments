@@ -1,5 +1,4 @@
 variable "sql_root_pw" {
-  description = "MariaDB Password"
   type        = string
   sensitive   = true
 }
@@ -13,5 +12,8 @@ module "MySQL" {
     ]
     docker_ports = [
         {"internal":3306, "external":3306, "protocol":"tcp"}
+    ]
+    docker_volumes = [
+        {"host_path":"${pathexpand("~")}/config/app_config/mysql", "container_path":"/var/lib/mysql"}
     ]
 }

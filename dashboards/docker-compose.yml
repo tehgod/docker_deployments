@@ -10,7 +10,7 @@ services:
       - "PGID=1000"
       - "TZ=America/Kentucky/Louisville"
     ports:
-      - 443:4443
+      - 4443:443
       - 7888:80
     restart: unless-stopped
 

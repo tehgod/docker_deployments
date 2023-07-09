@@ -4,6 +4,11 @@ services:
   omada:
     image: mbentley/omada-controller:latest
     restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 4096
+        hard: 8192
+    network_mode: host
     volumes:
       - omada-data:/opt/tplink/EAPController/data
       - omada-data:/opt/tplink/EAPController/logs

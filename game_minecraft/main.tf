@@ -10,7 +10,7 @@ module "minecraft" {
         "EULA=TRUE",
         "DIFFICULTY=hard",
         "SERVER_NAME=${local.server_name}",
-	"MEMORY=2G"
+	    "MEMORY=2G"
     ]
     docker_ports = [
         {"internal":25565, "external":25565, "protocol":"tcp"}

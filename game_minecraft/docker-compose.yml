@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  minecraft:
+    image: itzg/minecraft-server:latest
+    environment:
+      - EULA=TRUE
+      - DIFFICULTY=hard
+      - MEMORY=2G
+      - SERVER_NAME=${MC_SERVER_NAME}
+    ports:
+      - 25565:25565
+    volumes:
+      - ~/config/app_config/minecraft/${MC_SERVER_NAME}

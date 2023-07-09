@@ -92,8 +92,8 @@ services:
     volumes:
       - transmission-data:/data/transmission-home
       - ~/config/downloads/complete:/data/completed
-      - transmission-incomplete-downloads:/data/incomplete
-      - transmission-torrent-blackhole:/data/watch
+      - ~/config/downloads/incomplete:/data/incomplete
+      - ~/config/downloads/torrent-blackhole:/data/watch
     
 
 

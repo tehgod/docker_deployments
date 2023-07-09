@@ -111,7 +111,3 @@ volumes:
     external: true
   transmission-data:
     external: true
-  transmission-incomplete-downloads:
-    external: true
-  transmission-torrent-blackhole:
-    external: true

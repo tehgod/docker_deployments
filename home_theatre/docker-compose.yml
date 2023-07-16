@@ -67,6 +67,7 @@ services:
 
   transmission:
     image: haugene/transmission-openvpn:latest
+    restart: always
     environment:
       - OPENVPN_PROVIDER=NORDVPN
       - OPENVPN_USERNAME=${OPENVPN_USERNAME}

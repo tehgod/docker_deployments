@@ -106,5 +106,5 @@ volumes:
     external: true
   bazarr-data:
     external: true
-  transmission-data:
+  transmission-data2:
     external: true

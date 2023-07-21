@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  ombi:
+    image: linuxserver/ombi:development
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Kentucky/Louisville
+      - BASE_URL=/ombi
+    ports:
+      - 3579:3579
+    volumes:
+      - ombi-data:/config
+
+  prowlarr:
+    image: linuxserver/prowlarr:develop
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Kentucky/Louisville
+    ports:
+      - 9696:9696
+    volumes:
+      - prowlarr-data:/config
+
+  radarr:
+    image: linuxserver/radarr:latest
+    network_mode: "host"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Kentucky/Louisville
+    ports:
+      - 7878:7878
+    volumes:
+      - radarr-data:/config
+      - ~/config/complete/movies:/downloads
+      - ~/config/downloads/complete:/data/completed
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    network_mode: "host"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Kentucky/Louisville
+    ports:
+      - 8989:8989
+    volumes:
+      - sonarr-data:/config
+      - ~/config/complete/tv_shows:/tv_shows
+      - ~/config/downloads/complete:/data/completed
+
+  bazarr:
+    image: linuxserver/bazarr:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Kentucky/Louisville
+    ports:
+      - 6767:6767
+    volumes:
+      - bazarr-data:/config
+      - ~/config/complete/movies:/movies
+      - ~/config/complete/tv_shows:/tv
+
+  transmission:
+    image: haugene/transmission-openvpn:latest
+    environment:
+      - OPENVPN_PROVIDER=NORDVPN
+      - OPENVPN_USERNAME=${OPENVPN_USERNAME}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - NORDVPN_COUNTRY=US
+      - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
+      - LOCAL_NETWORK=192.168.86.0/24
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    cap_add:
+      - NET_ADMIN
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    ports:
+      - 9091:9091
+      - 8888:8888
+    volumes:
+      - transmission-data2:/data/transmission-home
+      - ~/config/downloads/complete:/data/completed
+      - ~/config/downloads/incomplete:/data/incomplete
+      - ~/config/downloads/torrent-blackhole:/data/watch
+    
+
+
+
+volumes:
+  ombi-data:
+    external: true
+  prowlarr-data:
+    external: true
+  radarr-data:
+    external: true
+  sonarr-data:
+    external: true
+  bazarr-data:
+    external: true
+  transmission-data2:
+    external: true

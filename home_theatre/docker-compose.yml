@@ -71,12 +71,9 @@ services:
       - OPENVPN_PROVIDER=NORDVPN
       - OPENVPN_USERNAME=${OPENVPN_USERNAME}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - NORDVPN_COUNTRY=US
       - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
       - LOCAL_NETWORK=192.168.86.0/24
-      - TRANSMISSION_RATIO_LIMIT=0
-      - TRANSMISSION_RATIO_LIMIT_ENABLED=true
-      - TRANSMISSION_IDLE_SEEDING_LIMIT=0
-      - TRANSMISSION_IDLE_SEEDING_LIMIT_ENABLED=true
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -90,7 +87,7 @@ services:
       - 9091:9091
       - 8888:8888
     volumes:
-      - transmission-data:/data/transmission-home
+      - transmission-data2:/data/transmission-home
       - ~/config/downloads/complete:/data/completed
       - ~/config/downloads/incomplete:/data/incomplete
       - ~/config/downloads/torrent-blackhole:/data/watch

@@ -3,6 +3,7 @@ version: '3.8'
 services:
   ombi:
     image: linuxserver/ombi:development
+    restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
@@ -15,6 +16,7 @@ services:
 
   prowlarr:
     image: linuxserver/prowlarr:develop
+    restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
@@ -26,6 +28,7 @@ services:
 
   radarr:
     image: linuxserver/radarr:latest
+    restart: unless-stopped
     network_mode: "host"
     environment:
       - PUID=1000
@@ -40,6 +43,7 @@ services:
 
   sonarr:
     image: linuxserver/sonarr:latest
+    restart: unless-stopped
     network_mode: "host"
     environment:
       - PUID=1000
@@ -54,6 +58,7 @@ services:
 
   bazarr:
     image: linuxserver/bazarr:latest
+    restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
@@ -67,12 +72,15 @@ services:
 
   transmission:
     image: haugene/transmission-openvpn:latest
+    restart: unless-stopped
     environment:
       - OPENVPN_PROVIDER=PIA
       - OPENVPN_USERNAME=${OPENVPN_USERNAME}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
       - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
       - LOCAL_NETWORK=192.168.86.0/24
+      - CONFIG_MOD_PING=0
+      - OPENVPN_OPTS=--ping 10 --pull-filter ignore ping
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -86,7 +94,7 @@ services:
       - 9091:9091
       - 8888:8888
     volumes:
-      - transmission-data2:/data/transmission-home
+      - transmission-data:/data/transmission-home
       - ~/config/downloads/complete:/data/completed
       - ~/config/downloads/incomplete:/data/incomplete
       - ~/config/downloads/torrent-blackhole:/data/watch
@@ -105,5 +113,5 @@ volumes:
     external: true
   bazarr-data:
     external: true
-  transmission-data2:
+  transmission-data:
     external: true

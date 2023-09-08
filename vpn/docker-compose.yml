@@ -9,13 +9,15 @@ services:
       - TS_EXTRA_ARGS=--advertise-exit-node
       - TS_ROUTES=192.168.86.0/24
     volumes:
-      - tailscale-data:/var/lib 
-      - tailscale-data:/dev/net/tun
+      - tailscale-data1:/var/lib 
+      - tailscale-data2:/dev/net/tun
     cap_add:
       - NET_ADMIN
       - NET_RAW
     restart: unless-stopped
     
 volumes:
-  tailscale-data:
+  tailscale-data1:
+    external: true
+  tailscale-data2:
     external: true

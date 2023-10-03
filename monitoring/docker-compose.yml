@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  uptimekuma:
+    image: louislam/uptime-kuma:1
+    volumes:
+      - kuma-data:/app/data
+    ports:
+      - 3001:3001
+    restart: unless-stopped
+
+volumes:
+    kuma-data:
+        external: true

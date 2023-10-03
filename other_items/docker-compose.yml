@@ -3,6 +3,7 @@ version: '3.8'
 services:
   syncthing:
     image: linuxserver/syncthing:latest
+    restart: always
     ports:
       - 8384:8384
       - 22000:22000
@@ -16,6 +17,7 @@ services:
 
   ddclient:
     image: lscr.io/linuxserver/ddclient:latest
+    restart: always
     volumes:
       - ~/config/app_config/ddclient:/config
     environment:
@@ -25,6 +27,7 @@ services:
 
   changedetection:
     image: dgtlmoon/changedetection.io:latest
+    restart: always
     ports:
       - 5000:5000
     volumes:
@@ -32,6 +35,7 @@ services:
 
   nginxpm:
     image: jc21/nginx-proxy-manager:latest
+    restart: always
     ports:
       - 80:80
       - 81:81
@@ -42,6 +46,7 @@ services:
 
   photoprism:
     image: photoprism/photoprism:latest
+    restart: always
     ports:
       - 2342:2342
     volumes:

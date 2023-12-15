@@ -15,6 +15,22 @@ services:
       - 3000:3000
     restart: unless-stopped
 
+  portainer:
+    image: portainer/portainer-ce:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Kentucky/Louisville
+    ports:
+      - 8000:8000
+      - 9443:9443
+    restart: unless-stopped
+
 volumes:
     homepage-data:
+        external: true
+    portainer-data:
         external: true

@@ -1,35 +1,20 @@
 version: '3.8'
 
 services:
-  heimdall:
-    image: lscr.io/linuxserver/heimdall:latest
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
     volumes:
-        - heimdall-data:/config
+        - homepage-data:/app/config
+        - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - "PUID=1000"
       - "PGID=1000"
       - "TZ=America/Kentucky/Louisville"
     ports:
-      - 4443:443
-      - 7888:80
-    restart: unless-stopped
-
-  portainer:
-    image: portainer/portainer-ce:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer-data:/data
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Kentucky/Louisville
-    ports:
-      - 8000:8000
-      - 9443:9443
+      - 3000:3000
     restart: unless-stopped
 
 volumes:
-    heimdall-data:
-        external: true
-    portainer-data:
+    homepage-data:
         external: true

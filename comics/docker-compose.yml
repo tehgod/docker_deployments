@@ -1,15 +1,11 @@
-version: '3.8'
-
 services:
   kavita:
-    image: kizaing/kavita:latest
+    image: jvmilazz0/kavita:latest
+    container_name: kavita
     volumes:
-        - kavita-data:/kavita/config
-        - ~/kavita:/manga
+      - /home_theater_data:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/appdata/kavita:/kavita/config
     ports:
       - 5050:5000
     restart: unless-stopped
-
-volumes:
-    kavita-data:
-        external: true

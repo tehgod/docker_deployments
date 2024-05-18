@@ -1,16 +1,12 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:latest
+    restart: unless-stopped
+    container_name: mysql
     environment:
-      - MYSQL_DATABASE=db
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     ports:
       - '3306:3306'
     volumes:
-      - mysql-data:/var/lib/mysql
+      - /docker/appdata/mysql:/var/lib/mysql
     command: mysqld --sql-mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
-volumes:
-  mysql-data:
-    external: true

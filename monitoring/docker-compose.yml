@@ -1,15 +1,11 @@
-version: '3.8'
-
 services:
   uptimekuma:
     image: louislam/uptime-kuma:1
+    restart: unless-stopped
+    container_name: uptimeKuma
     volumes:
-      - kuma-data:/app/data
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/appdata/uptimekuma:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 3001:3001
-    restart: unless-stopped
-
-volumes:
-    kuma-data:
-        external: true

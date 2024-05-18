@@ -1,20 +1,19 @@
-version: '3.8'
-
 services:
   omada:
     image: mbentley/omada-controller:latest
     restart: unless-stopped
+    container_name: omada_controller
     ulimits:
       nofile:
         soft: 4096
         hard: 8192
     network_mode: host
     volumes:
-      - omada-data:/opt/tplink/EAPController/data
-      - omada-data:/opt/tplink/EAPController/logs
+      - /docker/appdata/omada_controller:/opt/tplink/EAPController/data
+      - /docker/appdata/omada_controller:/opt/tplink/EAPController/logs
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=1002
+      - PGID=1002
       - TZ=America/Kentucky/Louisville
       - MANAGE_HTTP_PORT=8088
       - MANAGE_HTTPS_PORT=8043
@@ -22,7 +21,3 @@ services:
       - PORTAL_HTTPS_PORT=8043
       - SHOW_SERVER_LOGS=true
       - SHOW_MONGODB_LOGS=false
-
-volumes:
-  omada-data:
-    external: true

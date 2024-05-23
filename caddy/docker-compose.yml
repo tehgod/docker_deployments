@@ -1,0 +1,13 @@
+services:
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    container_name: caddy
+    privileged: true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /docker/appdata/caddy/caddyfile:/etc/caddy/Caddyfile
+      - /docker/appdata/caddy/data:/data
+      - /docker/appdata/caddy/config:/config

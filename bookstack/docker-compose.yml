@@ -1,0 +1,18 @@
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:latest
+    container_name: bookstack
+    environment:
+      - PUID=1002
+      - PGID=1002
+      - APP_URL=${HOST_ADDRESS}
+      - DB_HOST=${MYSQL_ADDRESS}
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USERNAME}
+      - DB_PASS=${MYSQL_PASSWORD}
+      - DB_DATABASE=Bookstack
+    volumes:
+      - /docker/appdata/bookstack:/config
+    ports:
+      - 6875:80
+    restart: unless-stopped

@@ -9,4 +9,4 @@ services:
     ports:
       - 25565:25565
     volumes:
-      - /docker/appdata/minecraft-server:/mc_server
+      - /docker/appdata/minecraft-server:/data

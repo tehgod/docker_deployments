@@ -1,10 +1,10 @@
-version: '3.3'
 services:
   kiwix-serve:
-      ports:
-        - 8090:8080
-      image: ghcr.io/kiwix/kiwix-serve:latest
-      volumes:
-        - /docker/appdata/kiwix:/data
-      command:
-        - '*.zim'
+    container_name: kiwix
+    ports:
+      - 8090:8080
+    image: ghcr.io/kiwix/kiwix-serve:latest
+    volumes:
+      - /docker/appdata/kiwix:/data
+    command:
+      - '*.zim'

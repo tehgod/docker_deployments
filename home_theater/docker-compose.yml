@@ -1,6 +1,6 @@
 services:
   ombi:
-    image: linuxserver/ombi:latest
+    image: linuxserver/ombi
     container_name: ombi
     restart: unless-stopped
     environment:
@@ -15,7 +15,7 @@ services:
       - /docker/appdata/ombi:/config
 
   radarr:
-    image: linuxserver/radarr:latest
+    image: linuxserver/radarr
     container_name: radarr
     restart: unless-stopped
     environment:
@@ -30,7 +30,7 @@ services:
       - /home_theater_data:/data
 
   sonarr:
-    image: linuxserver/sonarr:latest
+    image: linuxserver/sonarr
     restart: unless-stopped
     container_name: sonarr
     environment:
@@ -45,7 +45,7 @@ services:
       - /home_theater_data:/data
   
   bazarr:
-    image: linuxserver/bazarr:latest
+    image: linuxserver/bazarr
     restart: unless-stopped
     container_name: bazarr
     environment:
@@ -60,7 +60,7 @@ services:
       - /home_theater_data:/data
 
   prowlarr:
-    image: linuxserver/prowlarr:develop
+    image: linuxserver/prowlarr
     container_name: prowlarr
     restart: unless-stopped
     ports:
@@ -72,39 +72,6 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /docker/appdata/prowlarr:/config
-
-  # vpn:
-  #   image: binhex/arch-delugevpn:latest
-  #   container_name: delugevpn
-  #   restart: unless-stopped
-  #   cap_add:
-  #     - NET_ADMIN
-  #   ports:
-  #     - 8112:8112
-  #     - 8118:8118
-  #     - 58846:58846
-  #     - 58946:58946
-  #   environment:
-  #     - VPN_ENABLED=yes
-  #     - VPN_USER=${OPENVPN_USERNAME}
-  #     - VPN_PASS=${OPENVPN_PASSWORD}
-  #     - VPN_PROV=pia
-  #     - VPN_CLIENT=openvpn
-  #     - STRICT_PORT_FORWARD=yes
-  #     - ENABLE_PRIVOXY=yes
-  #     - LAN_NETWORK=10.0.0.0/16
-  #     - NAME_SERVERS=84.200.69.80,37.235.1.174,1.1.1.1,37.235.1.177,84.200.70.40,1.0.0.1
-  #     - DELUGE_DAEMON_LOG_LEVEL=info
-  #     - DELUGE_WEB_LOG_LEVEL=info
-  #     - DELUGE_ENABLE_WEBUI_PASSWORD=yes
-  #     - DEBUG=false
-  #     - UMASK=000
-  #     - PUID=1001
-  #     - PGID=1001
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - /home_theater_data:/data
-  #     - /docker/appdata/delugevpn:/config
 
   vpn:
     image: binhex/arch-qbittorrentvpn
@@ -140,3 +107,51 @@ services:
       - /docker/appdata/qbittorrent:/config
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=America/Kentucky/Louisville
+    ports:
+      - 5055:5055
+    volumes:
+      - /docker/appdata/overseerr:/app/config
+    restart: unless-stopped
+    user: "1001:1001"
+    
+  # vpn:
+  #   image: binhex/arch-delugevpn:latest
+  #   container_name: delugevpn
+  #   restart: unless-stopped
+  #   cap_add:
+  #     - NET_ADMIN
+  #   ports:
+  #     - 8112:8112
+  #     - 8118:8118
+  #     - 58846:58846
+  #     - 58946:58946
+  #   environment:
+  #     - VPN_ENABLED=yes
+  #     - VPN_USER=${OPENVPN_USERNAME}
+  #     - VPN_PASS=${OPENVPN_PASSWORD}
+  #     - VPN_PROV=pia
+  #     - VPN_CLIENT=openvpn
+  #     - STRICT_PORT_FORWARD=yes
+  #     - ENABLE_PRIVOXY=yes
+  #     - LAN_NETWORK=10.0.0.0/16
+  #     - NAME_SERVERS=84.200.69.80,37.235.1.174,1.1.1.1,37.235.1.177,84.200.70.40,1.0.0.1
+  #     - DELUGE_DAEMON_LOG_LEVEL=info
+  #     - DELUGE_WEB_LOG_LEVEL=info
+  #     - DELUGE_ENABLE_WEBUI_PASSWORD=yes
+  #     - DEBUG=false
+  #     - UMASK=000
+  #     - PUID=1001
+  #     - PGID=1001
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - /home_theater_data:/data
+  #     - /docker/appdata/delugevpn:/config
+
+

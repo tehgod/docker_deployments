@@ -1,81 +1,9 @@
 services:
-  ombi:
-    image: linuxserver/ombi
-    container_name: ombi
-    restart: unless-stopped
-    environment:
-      - PUID=1001
-      - PGID=1001
-      - TZ=America/Kentucky/Louisville
-      - BASE_URL=/ombi
-    ports:
-      - 3579:3579
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /docker/appdata/ombi:/config
-
-  radarr:
-    image: linuxserver/radarr
-    container_name: radarr
-    restart: unless-stopped
-    environment:
-      - PUID=1001
-      - PGID=1001
-      - TZ=America/Kentucky/Louisville
-    ports:
-      - 7878:7878
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /docker/appdata/radarr:/config
-      - /home_theater_data:/data
-
-  sonarr:
-    image: linuxserver/sonarr
-    restart: unless-stopped
-    container_name: sonarr
-    environment:
-      - PUID=1001
-      - PGID=1001
-      - TZ=America/Kentucky/Louisville
-    ports:
-      - 8989:8989
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /docker/appdata/sonarr:/config
-      - /home_theater_data:/data
-  
-  bazarr:
-    image: linuxserver/bazarr
-    restart: unless-stopped
-    container_name: bazarr
-    environment:
-      - PUID=1001
-      - PGID=1001
-      - TZ=America/Kentucky/Louisville
-    ports:
-      - 6767:6767
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /docker/appdata/bazarr:/config
-      - /home_theater_data:/data
-
-  prowlarr:
-    image: linuxserver/prowlarr
-    container_name: prowlarr
-    restart: unless-stopped
-    ports:
-      - 9696:9696
-    environment:
-      - PUID=1001
-      - PGID=1001
-      - TZ=America/Kentucky/Louisville
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /docker/appdata/prowlarr:/config
-
   vpn:
     image: binhex/arch-qbittorrentvpn
     container_name: qbittorrent
+    networks:
+      - home_theater_network
     cap_add:
       - NET_ADMIN
     ports:
@@ -95,32 +23,129 @@ services:
       - STRICT_PORT_FORWARD=yes
       - USERSPACE_WIREGUARD=no
       - ENABLE_SOCKS=no
-      - LAN_NETWORK=10.0.0.0/16  # Updated LAN network
+      - LAN_NETWORK=${HOME_NETWORK}  # Updated LAN network
       - NAME_SERVERS=8.8.8.8,8.8.4.4
       - DEBUG=false
       - WEBUI_PORT=9080
       - UMASK=002
-      - PUID=1001  # Updated PUID
-      - PGID=1001  # Updated PGID
+      - PUID=${HOME_THEATER_UID}  # Updated PUID
+      - PGID=${HOME_THEATER_GID}  # Updated PGID
+      - TZ=${TZ}
     volumes:
-      - /home_theater_data:/data
-      - /docker/appdata/qbittorrent:/config
-      - /etc/localtime:/etc/localtime:ro
+      - ${HOME_THEATER_DIR}:/data
+      - ${APPDATA_DIR}/qbittorrent:/config
     restart: unless-stopped
 
+  prowlarr:
+    image: linuxserver/prowlarr
+    container_name: prowlarr
+    restart: unless-stopped
+    networks:
+      - home_theater_network
+    ports:
+      - 9696:9696
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/prowlarr:/config
+    depends_on:
+      - vpn
+
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    restart: unless-stopped
+    networks:
+      - home_theater_network
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    ports:
+      - 7878:7878
+    volumes:
+      - ${APPDATA_DIR}/radarr:/config
+      - ${HOME_THEATER_DIR}:/data
+    depends_on:
+      - prowlarr
+
+  sonarr:
+    image: linuxserver/sonarr
+    restart: unless-stopped
+    container_name: sonarr
+    networks:
+      - home_theater_network
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    ports:
+      - 8989:8989
+    volumes:
+      - ${APPDATA_DIR}/sonarr:/config
+      - ${HOME_THEATER_DIR}:/data
+    depends_on:
+      - prowlarr
+
+  bazarr:
+    image: linuxserver/bazarr
+    restart: unless-stopped
+    container_name: bazarr
+    networks:
+      - home_theater_network
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    ports:
+      - 6767:6767
+    volumes:
+      - ${APPDATA_DIR}/bazarr:/config
+      - ${HOME_THEATER_DIR}:/data
+    depends_on:
+      - prowlarr
+  
   overseerr:
-    image: sctx/overseerr:latest
+    image: sctx/overseerr
     container_name: overseerr
+    networks:
+      - home_theater_network
     environment:
       - LOG_LEVEL=debug
-      - TZ=America/Kentucky/Louisville
+      - TZ=${TZ}
     ports:
       - 5055:5055
     volumes:
-      - /docker/appdata/overseerr:/app/config
+      - ${APPDATA_DIR}/overseerr:/app/config
     restart: unless-stopped
-    user: "1001:1001"
-    
+    user: "${HOME_THEATER_UID}:${HOME_THEATER_GID}"
+    depends_on:
+      - radarr
+      - sonarr
+
+networks:
+  home_theater_network:
+    driver: bridge
+
+  # ombi:
+  #   image: linuxserver/ombi
+  #   container_name: ombi
+  #   restart: unless-stopped
+  #   networks:
+  #     - home_theater_network
+  #   environment:
+  #     - PUID=1001
+  #     - PGID=1001
+  #     - TZ=America/Kentucky/Louisville
+  #     - BASE_URL=/ombi
+  #   ports:
+  #     - 3579:3579
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - /docker/appdata/ombi:/config
+
   # vpn:
   #   image: binhex/arch-delugevpn:latest
   #   container_name: delugevpn
@@ -151,7 +176,7 @@ services:
   #     - PGID=1001
   #   volumes:
   #     - /etc/localtime:/etc/localtime:ro
-  #     - /home_theater_data:/data
+  #     - ${HOME_THEATER_UID}:/data
   #     - /docker/appdata/delugevpn:/config
 
 

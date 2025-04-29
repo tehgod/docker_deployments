@@ -28,3 +28,15 @@ services:
       - 4443:443
       - 7888:80
     restart: unless-stopped
+  
+  metube:
+    image: ghcr.io/alexta69/metube
+    container_name: metube
+    restart: unless-stopped
+    ports:
+      - "8203:8081"
+    environment:
+      - "UID=1002"
+      - "GID=1002"
+    volumes:
+      - /ytdlp-downloads:/downloads

@@ -1,0 +1,73 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.3
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    secrets:
+      - cf_dns_api_token
+    networks:
+      - traefik_proxy
+    ports:
+      - 80:80
+      - 443:443
+      - 8085:8085
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${APPDATA_DIR}/traefik/logs:/logs
+      - ${APPDATA_DIR}/traefik/acme/acme.json:/acme.json
+    environment:
+      - TZ=$TZ
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_dns_api_token    
+      - DOMAINNAME_1 # Passing the domain name to traefik container to be able to use the variable in rules. 
+    command: 
+      - --global.checkNewVersion=true #check for new version on startup
+      - --entrypoints.web.address=:80  #allow port entry
+      - --entrypoints.websecure.address=:443 #allow port entry
+      - --api=true #enable api
+      - --api.dashboard=true #enable dashboard
+      - --api.insecure=true #allow connection that isn't from FQDN (allows via IP)
+      - --serversTransport.insecureSkipVerify=false #enabling skips SSL verification
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure #setting a global HTTP to HTTPS redirect
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https #setting a global HTTP to HTTPS redirect
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true #setting a global HTTP to HTTPS redirect
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=$CLOUDFLARE_IPS,$LOCAL_IPS # allow cloudflare and local IPs
+      
+      - --log=true #enable logging
+      - --log.filePath=/logs/traefik.log
+      - --log.level=DEBUG # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+      - --accessLog=true
+      - --accessLog.filePath=/logs/access.log
+      # - --accessLog.bufferingSize=100 # Configuring a buffer of 100 lines
+      - --accessLog.filters.statusCodes=204-299,400-499,500-599
+
+      - --providers.docker=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock #used if using the docker provider
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.network=traefik_proxy
+      - --entrypoints.traefik.address=:8085
+
+      - --entrypoints.websecure.http.tls.certresolver=dns-cloudflare
+      - --entrypoints.websecure.http.tls.domains[0].main=${DOMAINNAME_1}
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.${DOMAINNAME_1}
+
+      #- --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server - uncomment when testing
+      - --certificatesResolvers.dns-cloudflare.acme.storage=/acme.json
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=90 # To delay DNS check and reduce LE hitrate
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-rtr.entrypoints=websecure"
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME_1`)"
+      - "traefik.http.routers.traefik-rtr.service=api@internal" #don't touch this idk
+
+secrets:
+  cf_dns_api_token:
+    file: ${APPDATA_DIR}/traefik/cf_dns_api_token
+
+networks:
+  traefik_proxy:
+    name: traefik_proxy
+    driver: bridge

@@ -112,6 +112,7 @@ services:
     container_name: overseerr
     networks:
       - home_theater_network
+      - traefik_proxy
     environment:
       - LOG_LEVEL=debug
       - TZ=${TZ}
@@ -124,10 +125,22 @@ services:
     depends_on:
       - radarr
       - sonarr
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.overseerr-rtr.entrypoints=websecure"
+      - "traefik.http.routers.overseerr-rtr.rule=Host(`request.$DOMAINNAME_1`)"
+      # HTTP Services
+      - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
+      - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
 
 networks:
   home_theater_network:
     driver: bridge
+    name: home_theater_network
+  traefik_proxy:
+    driver: bridge
+    name: traefik_proxy
 
   # ombi:
   #   image: linuxserver/ombi

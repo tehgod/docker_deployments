@@ -17,6 +17,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${APPDATA_DIR}/traefik/logs:/logs
       - ${APPDATA_DIR}/traefik/acme/acme.json:/acme.json
+      - ${APPDATA_DIR}/traefik/rules:/rules
     environment:
       - TZ=$TZ
       - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_dns_api_token    
@@ -25,6 +26,7 @@ services:
       - --global.checkNewVersion=true #check for new version on startup
       - --entrypoints.web.address=:80  #allow port entry
       - --entrypoints.websecure.address=:443 #allow port entry
+      - --entrypoints.traefik.address=:8085 #assigns traefik webUI a port to access at
       - --api=true #enable api
       - --api.dashboard=true #enable dashboard
       - --api.insecure=true #allow connection that isn't from FQDN (allows via IP)
@@ -35,18 +37,20 @@ services:
       - --entrypoints.websecure.forwardedHeaders.trustedIPs=$CLOUDFLARE_IPS,$LOCAL_IPS # allow cloudflare and local IPs
       
       - --log=true #enable logging
-      - --log.filePath=/logs/traefik.log
-      - --log.level=DEBUG # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
-      - --accessLog=true
-      - --accessLog.filePath=/logs/access.log
+      - --log.filePath=/logs/traefik.log #log filepath
+      - --log.level=WARN # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+      - --accessLog=true #enable access logging
+      - --accessLog.filePath=/logs/access.log #access log filepath
       # - --accessLog.bufferingSize=100 # Configuring a buffer of 100 lines
       - --accessLog.filters.statusCodes=204-299,400-499,500-599
 
-      - --providers.docker=true
+      - --providers.docker=true #using docker as a provider
       - --providers.docker.endpoint=unix:///var/run/docker.sock #used if using the docker provider
-      - --providers.docker.exposedByDefault=false
-      - --providers.docker.network=traefik_proxy
-      - --entrypoints.traefik.address=:8085
+      - --providers.docker.exposedByDefault=false #prevents every service from automatically being added
+      - --providers.docker.network=traefik_proxy #very important, this is the network that it will monitor on docker
+      
+      - --providers.file.directory=/rules # Load dynamic configuration from one or more .toml or .yml files in a directory
+      - --providers.file.watch=true # prevent needing to restart to see file changes
 
       - --entrypoints.websecure.http.tls.certresolver=dns-cloudflare
       - --entrypoints.websecure.http.tls.domains[0].main=${DOMAINNAME_1}
@@ -62,7 +66,8 @@ services:
       - "traefik.http.routers.traefik-rtr.entrypoints=websecure"
       - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.$DOMAINNAME_1`)"
       - "traefik.http.routers.traefik-rtr.service=api@internal" #don't touch this idk
-
+      # Middlewares
+      - "traefik.http.routers.traefik-rtr.middlewares=chain-no-auth@file"
 secrets:
   cf_dns_api_token:
     file: ${APPDATA_DIR}/traefik/cf_dns_api_token

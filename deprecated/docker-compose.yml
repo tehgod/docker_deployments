@@ -1,0 +1,72 @@
+services:
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    container_name: caddy
+    privileged: true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /docker/appdata/caddy/caddyfile:/etc/caddy/Caddyfile
+      - /docker/appdata/caddy/data:/data
+      - /docker/appdata/caddy/config:/config
+
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    volumes:
+      - /docker/appdata/heimdall:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - "PUID=1002"
+      - "PGID=1002"
+      - "TZ=America/Kentucky/Louisville"
+    ports:
+      - 4443:443
+      - 7888:80
+    restart: unless-stopped
+  
+  nginxpm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: npm
+    restart: always
+    ports:
+      - 80:80
+      - 81:81
+      - 443:443
+    volumes:
+      - /docker/appdata/npm:/data
+      - /docker/appdata/npm:/etc/letsencrypt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

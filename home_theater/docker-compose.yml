@@ -7,7 +7,6 @@ services:
     cap_add:
       - NET_ADMIN
     ports:
-      - "8080:8080"
       - "8118:8118"
       - "9118:9118"
       - "58946:58946"
@@ -131,6 +130,7 @@ services:
       - "traefik.http.routers.overseerr-rtr.entrypoints=websecure"
       - "traefik.http.routers.overseerr-rtr.rule=Host(`request.$DOMAINNAME_1`)"
       # HTTP Services
+      - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file"
       - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
       - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
 
@@ -141,55 +141,5 @@ networks:
   traefik_proxy:
     driver: bridge
     name: traefik_proxy
-
-  # ombi:
-  #   image: linuxserver/ombi
-  #   container_name: ombi
-  #   restart: unless-stopped
-  #   networks:
-  #     - home_theater_network
-  #   environment:
-  #     - PUID=1001
-  #     - PGID=1001
-  #     - TZ=America/Kentucky/Louisville
-  #     - BASE_URL=/ombi
-  #   ports:
-  #     - 3579:3579
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - /docker/appdata/ombi:/config
-
-  # vpn:
-  #   image: binhex/arch-delugevpn:latest
-  #   container_name: delugevpn
-  #   restart: unless-stopped
-  #   cap_add:
-  #     - NET_ADMIN
-  #   ports:
-  #     - 8112:8112
-  #     - 8118:8118
-  #     - 58846:58846
-  #     - 58946:58946
-  #   environment:
-  #     - VPN_ENABLED=yes
-  #     - VPN_USER=${OPENVPN_USERNAME}
-  #     - VPN_PASS=${OPENVPN_PASSWORD}
-  #     - VPN_PROV=pia
-  #     - VPN_CLIENT=openvpn
-  #     - STRICT_PORT_FORWARD=yes
-  #     - ENABLE_PRIVOXY=yes
-  #     - LAN_NETWORK=10.0.0.0/16
-  #     - NAME_SERVERS=84.200.69.80,37.235.1.174,1.1.1.1,37.235.1.177,84.200.70.40,1.0.0.1
-  #     - DELUGE_DAEMON_LOG_LEVEL=info
-  #     - DELUGE_WEB_LOG_LEVEL=info
-  #     - DELUGE_ENABLE_WEBUI_PASSWORD=yes
-  #     - DEBUG=false
-  #     - UMASK=000
-  #     - PUID=1001
-  #     - PGID=1001
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - ${HOME_THEATER_UID}:/data
-  #     - /docker/appdata/delugevpn:/config
 
 

@@ -1,0 +1,84 @@
+services:   
+  metube:
+    image: ghcr.io/alexta69/metube
+    container_name: metube
+    restart: unless-stopped
+    ports:
+      - "10009:8081"
+    environment:
+      - "UID=${DOCKER_RUNNER_UID}"
+      - "GID=${DOCKER_RUNNER_GID}"
+    volumes:
+      - /ytdlp-downloads:/downloads
+
+  filebot:
+    image: jlesage/filebot
+    container_name: filebot
+    restart: unless-stopped
+    environment:
+      - USER_ID=${HOME_THEATER_UID}
+      - GROUP_ID=${HOME_THEATER_GID}
+    ports:
+      - 10012:5800
+    volumes:
+      - /docker/appdata/filebot:/config:rw
+      - /home_theater_data/torrents/completed:/storage:rw
+
+  db_recipes:
+    container_name: tandoor-db
+    restart: always
+    image: postgres:16-alpine
+    volumes:
+      - /docker/appdata/tandoor/postgresql:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - cooking
+
+  web_recipes:
+    container_name: tandoor-web
+    restart: always
+    image: vabene1111/recipes
+    env_file:
+      - .env
+    volumes:
+      - staticfiles:/opt/recipes/staticfiles
+      # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
+      - nginx_config:/opt/recipes/nginx/conf.d
+      - /docker/appdata/tandoor/mediafiles:/opt/recipes/mediafiles
+    depends_on:
+      - db_recipes
+    networks:
+      - cooking
+
+  nginx_recipes:
+    container_name: tandoor-nginx
+    image: nginx:mainline-alpine
+    restart: always
+    networks:
+      - traefik_proxy
+      - cooking
+    env_file:
+      - .env
+    depends_on:
+      - web_recipes
+    volumes:
+      # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
+      - nginx_config:/etc/nginx/conf.d:ro
+      - staticfiles:/static:ro
+      - /docker/appdata/tandoor/mediafiles:/media:ro
+    labels: # traefik example labels
+      - "traefik.enable=true"
+      - "traefik.http.routers.recipes-rtr.rule=Host(`recipes.shelbyhomelab.com`)"
+      - "traefik.http.routers.recipes-rtr.entrypoints=websecure" # your https endpoint
+      - "traefik.http.routers.recipes-rtr.tls.certresolver=dns-cloudflare" # your cert resolver
+
+volumes:
+  nginx_config:
+  staticfiles:
+
+networks:
+  cooking:
+  traefik_proxy:
+    name: traefik_proxy
+    external: true

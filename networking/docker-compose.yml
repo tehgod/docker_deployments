@@ -1,5 +1,28 @@
 services:
-  reverse-proxy:
+  omada:
+    image: mbentley/omada-controller
+    restart: unless-stopped
+    container_name: omada_controller
+    ulimits:
+      nofile:
+        soft: 4096
+        hard: 8192
+    network_mode: host
+    volumes:
+      - ${APPDATA_DIR}/omada_controller:/opt/tplink/EAPController/data
+      - ${APPDATA_DIR}/omada_controller:/opt/tplink/EAPController/logs
+    environment:
+      - PUID=${DOCKER_RUNNER_UID}
+      - PGID=${DOCKER_RUNNER_GID}
+      - TZ=${TZ}
+      - MANAGE_HTTPS_PORT=10007
+      - PORTAL_HTTPS_PORT=10007
+      - SHOW_SERVER_LOGS=true
+      - SHOW_MONGODB_LOGS=false
+      # - MANAGE_HTTP_PORT=8088
+      # - PORTAL_HTTP_PORT=8088
+
+  traefik:
     image: traefik:v3.3
     container_name: traefik
     restart: unless-stopped
@@ -12,14 +35,14 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 8085:8085
+      - 10015:8085
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${APPDATA_DIR}/traefik/logs:/logs
       - ${APPDATA_DIR}/traefik/acme/acme.json:/acme.json
       - ${APPDATA_DIR}/traefik/rules:/rules
     environment:
-      - TZ=$TZ
+      - TZ=${TZ}
       - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_dns_api_token    
       - DOMAINNAME_1 # Passing the domain name to traefik container to be able to use the variable in rules. 
     command: 
@@ -41,7 +64,7 @@ services:
       - --log.level=WARN # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
       - --accessLog=true #enable access logging
       - --accessLog.filePath=/logs/access.log #access log filepath
-      # - --accessLog.bufferingSize=100 # Configuring a buffer of 100 lines
+      - --accessLog.bufferingSize=20 # Configuring a buffer of 100 lines
       - --accessLog.filters.statusCodes=204-299,400-499,500-599
 
       - --providers.docker=true #using docker as a provider
@@ -68,10 +91,51 @@ services:
       - "traefik.http.routers.traefik-rtr.service=api@internal" #don't touch this idk
       # Middlewares
       - "traefik.http.routers.traefik-rtr.middlewares=chain-no-auth@file"
+
+  authelia:
+    container_name: authelia
+    image: authelia/authelia:4.37.5
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    ports:
+      - 10016:9091
+    networks:
+      - traefik_proxy
+    volumes:
+      - ${APPDATA_DIR}/authelia/config:/config
+    environment:
+      - TZ=$TZ
+      - AUTHELIA_JWT_SECRET_FILE=/run/secrets/authelia_jwt_secret
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE=/run/secrets/authelia_storage_encryption_key
+      - AUTHELIA_SESSION_SECRET_FILE=/run/secrets/authelia_session_secret
+      - DOMAINNAME_1
+    secrets:
+      - authelia_jwt_secret
+      - authelia_storage_encryption_key
+      - authelia_session_secret
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.authelia-rtr.entrypoints=websecure"
+      - "traefik.http.routers.authelia-rtr.rule=Host(`authelia.$DOMAINNAME_1`)"
+      ## Middlewares
+      - "traefik.http.routers.authelia-rtr.middlewares=chain-no-auth@file"
+      ## HTTP Services
+      - "traefik.http.routers.authelia-rtr.service=authelia-svc"
+      - "traefik.http.services.authelia-svc.loadbalancer.server.port=9091"
+    depends_on:
+      - traefik
+
 secrets:
+  authelia_jwt_secret:
+    file: ${APPDATA_DIR}/authelia/secrets/authelia_jwt_secret
+  authelia_session_secret:
+    file: ${APPDATA_DIR}/authelia/secrets/authelia_session_secret
+  authelia_storage_encryption_key:
+    file: ${APPDATA_DIR}/authelia/secrets/authelia_storage_encryption_key
   cf_dns_api_token:
     file: ${APPDATA_DIR}/traefik/cf_dns_api_token
-
 networks:
   traefik_proxy:
     name: traefik_proxy

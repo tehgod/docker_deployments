@@ -1,0 +1,18 @@
+services:
+  tmodloader:
+    image: jacobsmile/tmodloader1.4:latest
+    container_name: terraria
+    restart: unless-stopped
+    environment:
+      TMOD_AUTODOWNLOAD: 2687866031,2669644269,2619954303,2563309347
+      TMOD_ENABLEDMODS: 2687866031,2669644269,2619954303,2563309347
+      TMOD_AUTOSAVE_INTERVAL: 5
+      TMOD_MOTD: ${MOTD}
+      TMOD_PASS: ${PASSWORD}
+      TMOD_MAXPLAYERS: 16
+      TMOD_WORLDSIZE: 3
+      TMOD_NPCSTREAM: 15
+    ports:
+      - 7777:7777
+    volumes:
+      - /docker/appdata/tmodloader:/data

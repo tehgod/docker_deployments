@@ -10,7 +10,7 @@ services:
       - "8118:8118"
       - "9118:9118"
       - "58946:58946"
-      - "9080:9080"
+      - "10004:9080"
     environment:
       - VPN_ENABLED=yes
       - VPN_USER=${OPENVPN_USERNAME}
@@ -42,7 +42,7 @@ services:
     networks:
       - home_theater_network
     ports:
-      - 9696:9696
+      - 10005:9696
     environment:
       - PUID=${HOME_THEATER_UID}
       - PGID=${HOME_THEATER_GID}
@@ -63,7 +63,7 @@ services:
       - PGID=${HOME_THEATER_GID}
       - TZ=${TZ}
     ports:
-      - 7878:7878
+      - 10001:7878
     volumes:
       - ${APPDATA_DIR}/radarr:/config
       - ${HOME_THEATER_DIR}:/data
@@ -81,7 +81,7 @@ services:
       - PGID=${HOME_THEATER_GID}
       - TZ=${TZ}
     ports:
-      - 8989:8989
+      - 10002:8989
     volumes:
       - ${APPDATA_DIR}/sonarr:/config
       - ${HOME_THEATER_DIR}:/data
@@ -99,7 +99,7 @@ services:
       - PGID=${HOME_THEATER_GID}
       - TZ=${TZ}
     ports:
-      - 6767:6767
+      - 10018:6767
     volumes:
       - ${APPDATA_DIR}/bazarr:/config
       - ${HOME_THEATER_DIR}:/data
@@ -116,7 +116,7 @@ services:
       - LOG_LEVEL=debug
       - TZ=${TZ}
     ports:
-      - 5055:5055
+      - 10006:5055
     volumes:
       - ${APPDATA_DIR}/overseerr:/app/config
     restart: unless-stopped
@@ -133,6 +133,18 @@ services:
       - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file"
       - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
       - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
+
+  kavita:
+    image: jvmilazz0/kavita
+    container_name: kavita
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${HOME_THEATER_DIR}:/data
+      - ${APPDATA_DIR}/kavita:/kavita/config
+    ports:
+      - 10017:5000
+    restart: unless-stopped
 
 networks:
   home_theater_network:

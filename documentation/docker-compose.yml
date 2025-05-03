@@ -1,0 +1,58 @@
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack
+    container_name: bookstack
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    ports:
+      - 10008:80
+    environment:
+      - PUID=${DOCKER_RUNNER_UID}
+      - PGID=${DOCKER_RUNNER_GID}
+      # - APP_URL=${HOST_ADDRESS}
+      - DB_HOST=${MYSQL_ADDRESS}
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USERNAME}
+      - DB_PASS=${MYSQL_PASSWORD}
+      - DB_DATABASE=Bookstack
+      - APP_URL=https://docs.${DOMAINNAME_1}
+    volumes:
+      - ${APPDATA_DIR}/bookstack:/config
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.bookstack-rtr.entrypoints=websecure"
+      - "traefik.http.routers.bookstack-rtr.rule=Host(`docs.$DOMAINNAME_1`)"
+      # HTTP Services
+      - "traefik.http.routers.bookstack-rtr.service=bookstack-svc"
+      - "traefik.http.services.bookstack-svc.loadbalancer.server.port=80"
+      # Middleware
+      - "traefik.http.routers.bookstack-rtr.middlewares=chain-authelia@file"
+
+  kiwix-serve:
+    image: ghcr.io/kiwix/kiwix-serve
+    container_name: kiwix
+    restart: unless-stopped
+    networks:
+      - traefik_proxy
+    ports:
+      - 10011:8080
+    command:
+      - '*.zim'
+    volumes:
+      - ${APPDATA_DIR}/kiwix:/data
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.kiwix-rtr.entrypoints=websecure"
+      - "traefik.http.routers.kiwix-rtr.rule=Host(`wiki.$DOMAINNAME_1`)"
+      # HTTP Services
+      - "traefik.http.routers.kiwix-rtr.service=kiwix-svc"
+      - "traefik.http.services.kiwix-svc.loadbalancer.server.port=8080"
+      # Middleware
+      - "traefik.http.routers.kiwix-rtr.middlewares=chain-authelia@file"
+
+networks:
+  traefik_proxy:
+    external: true

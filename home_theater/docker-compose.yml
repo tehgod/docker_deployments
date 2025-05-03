@@ -10,7 +10,7 @@ services:
       - "8118:8118"
       - "9118:9118"
       - "58946:58946"
-      - "10004:9080"
+      - "10004:10004"
     environment:
       - VPN_ENABLED=yes
       - VPN_USER=${OPENVPN_USERNAME}
@@ -25,7 +25,7 @@ services:
       - LAN_NETWORK=${HOME_NETWORK}  # Updated LAN network
       - NAME_SERVERS=8.8.8.8,8.8.4.4
       - DEBUG=false
-      - WEBUI_PORT=9080
+      - WEBUI_PORT=10004
       - UMASK=002
       - PUID=${HOME_THEATER_UID}  # Updated PUID
       - PGID=${HOME_THEATER_GID}  # Updated PGID

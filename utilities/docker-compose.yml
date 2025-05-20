@@ -34,7 +34,7 @@ services:
     environment:
       - PUID=${DOCKER_RUNNER_UID}
       - PGID=${DOCKER_RUNNER_GID}
-      - APP_KEY="base64:6lDbnjOOyuryM5m1YF2swnD6flU3cNSDHasPS/AkWmA="
+      - APP_KEY=${SPEEDTEST_APP_KEY}
       - DB_CONNECTION=sqlite
     volumes:
       - ${APPDATA_DIR}/speedtest:/config

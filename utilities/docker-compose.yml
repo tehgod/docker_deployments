@@ -21,15 +21,30 @@ services:
     ports:
       - 10012:5800
     volumes:
-      - /docker/appdata/filebot:/config:rw
+      - ${APPDATA_DIR}/filebot:/config:rw
       - /home_theater_data/torrents/completed:/storage:rw
+
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker
+    restart: unless-stopped
+    container_name: speedtest-tracker
+    ports:
+      - 10019:80
+      # - 10020:443
+    environment:
+      - PUID=${DOCKER_RUNNER_UID}
+      - PGID=${DOCKER_RUNNER_GID}
+      - APP_KEY="base64:6lDbnjOOyuryM5m1YF2swnD6flU3cNSDHasPS/AkWmA="
+      - DB_CONNECTION=sqlite
+    volumes:
+      - ${APPDATA_DIR}/speedtest:/config
 
   db_recipes:
     container_name: tandoor-db
     restart: always
     image: postgres:16-alpine
     volumes:
-      - /docker/appdata/tandoor/postgresql:/var/lib/postgresql/data
+      - ${APPDATA_DIR}/tandoor/postgresql:/var/lib/postgresql/data
     env_file:
       - .env
     networks:
@@ -45,7 +60,7 @@ services:
       - staticfiles:/opt/recipes/staticfiles
       # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
       - nginx_config:/opt/recipes/nginx/conf.d
-      - /docker/appdata/tandoor/mediafiles:/opt/recipes/mediafiles
+      - ${APPDATA_DIR}/tandoor/mediafiles:/opt/recipes/mediafiles
     depends_on:
       - db_recipes
     networks:
@@ -66,12 +81,14 @@ services:
       # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
       - nginx_config:/etc/nginx/conf.d:ro
       - staticfiles:/static:ro
-      - /docker/appdata/tandoor/mediafiles:/media:ro
+      - ${APPDATA_DIR}/tandoor/mediafiles:/media:ro
     labels: # traefik example labels
       - "traefik.enable=true"
       - "traefik.http.routers.recipes-rtr.rule=Host(`recipes.shelbyhomelab.com`)"
       - "traefik.http.routers.recipes-rtr.entrypoints=websecure" # your https endpoint
       - "traefik.http.routers.recipes-rtr.tls.certresolver=dns-cloudflare" # your cert resolver
+
+
 
 volumes:
   nginx_config:

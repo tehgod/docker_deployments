@@ -6,6 +6,7 @@ services:
     ports:
       - 10000:3000
     environment:
+      - "HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOST}"
       - "PUID=${DOCKER_RUNNER_UID}"
       - "PGID=${DOCKER_RUNNER_GID}"
       - "TZ=${TZ}"

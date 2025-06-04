@@ -10,6 +10,8 @@ services:
       - "GID=${DOCKER_RUNNER_GID}"
     volumes:
       - /ytdlp-downloads:/downloads
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   filebot:
     image: jlesage/filebot
@@ -23,6 +25,8 @@ services:
     volumes:
       - ${APPDATA_DIR}/filebot:/config:rw
       - /home_theater_data/torrents/completed:/storage:rw
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   speedtest-tracker:
     image: lscr.io/linuxserver/speedtest-tracker
@@ -36,8 +40,22 @@ services:
       - PGID=${DOCKER_RUNNER_GID}
       - APP_KEY=${SPEEDTEST_APP_KEY}
       - DB_CONNECTION=sqlite
+      - SPEEDTEST_SCHEDULE="*/30 * * * *"
+      - DISPLAY_TIMEZONE=${TZ}
     volumes:
       - ${APPDATA_DIR}/speedtest:/config
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - WATCHTOWER_LABEL_ENABLE=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   db_recipes:
     container_name: tandoor-db
@@ -87,7 +105,7 @@ services:
       - "traefik.http.routers.recipes-rtr.rule=Host(`recipes.shelbyhomelab.com`)"
       - "traefik.http.routers.recipes-rtr.entrypoints=websecure" # your https endpoint
       - "traefik.http.routers.recipes-rtr.tls.certresolver=dns-cloudflare" # your cert resolver
-
+    
 
 
 volumes:

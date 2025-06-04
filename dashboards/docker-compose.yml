@@ -12,6 +12,8 @@ services:
     volumes:
       - ${APPDATA_DIR}/homepage:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   mongo-express:
     image: mongo-express
@@ -24,6 +26,8 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD}
       ME_CONFIG_MONGODB_SERVER: mongo
       ME_CONFIG_BASICAUTH: false
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
       
   uptimekuma:
     image: louislam/uptime-kuma:1
@@ -36,7 +40,9 @@ services:
     volumes:
       - ${APPDATA_DIR}/uptimekuma:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
-    
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
   grafana:
     image: grafana/grafana-enterprise
     container_name: grafana
@@ -48,6 +54,8 @@ services:
     user: ${DOCKER_RUNNER_UID}:${DOCKER_RUNNER_GID}
     volumes:
      - ${APPDATA_DIR}/grafana:/var/lib/grafana
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   open-webui:
     build:
@@ -79,6 +87,7 @@ services:
       - "traefik.http.services.openwebui-svc.loadbalancer.server.port=8080"
       # Middleware
       - "traefik.http.routers.openwebui-rtr.middlewares=chain-authelia@file"
+      - "com.centurylinklabs.watchtower.enable=true"
 
 networks:
   traefik_proxy:

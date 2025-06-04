@@ -34,6 +34,8 @@ services:
       - ${HOME_THEATER_DIR}:/data
       - ${APPDATA_DIR}/qbittorrent:/config
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   prowlarr:
     image: linuxserver/prowlarr
@@ -51,6 +53,8 @@ services:
       - ${APPDATA_DIR}/prowlarr:/config
     depends_on:
       - vpn
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   radarr:
     image: linuxserver/radarr
@@ -69,6 +73,8 @@ services:
       - ${HOME_THEATER_DIR}:/data
     depends_on:
       - prowlarr
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   sonarr:
     image: linuxserver/sonarr
@@ -87,6 +93,8 @@ services:
       - ${HOME_THEATER_DIR}:/data
     depends_on:
       - prowlarr
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
   bazarr:
     image: linuxserver/bazarr
@@ -105,6 +113,8 @@ services:
       - ${HOME_THEATER_DIR}:/data
     depends_on:
       - prowlarr
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
   
   overseerr:
     image: sctx/overseerr
@@ -133,6 +143,7 @@ services:
       - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file"
       - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
       - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
+      - "com.centurylinklabs.watchtower.enable=true"
 
   kavita:
     image: jvmilazz0/kavita
@@ -145,6 +156,8 @@ services:
     ports:
       - 10017:5000
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
 
 networks:
   home_theater_network:

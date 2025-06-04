@@ -10,7 +10,7 @@ services:
     environment:
       - PUID=${DOCKER_RUNNER_UID}
       - PGID=${DOCKER_RUNNER_GID}
-      # - APP_URL=${HOST_ADDRESS}
+      # - APP_URL=${BOOKSTACK_HOST_ADDRESS}
       - DB_HOST=${MYSQL_ADDRESS}
       - DB_PORT=3306
       - DB_USER=${MYSQL_USERNAME}
@@ -29,6 +29,7 @@ services:
       - "traefik.http.services.bookstack-svc.loadbalancer.server.port=80"
       # Middleware
       - "traefik.http.routers.bookstack-rtr.middlewares=chain-authelia@file"
+      - "com.centurylinklabs.watchtower.enable=true"
 
   kiwix-serve:
     image: ghcr.io/kiwix/kiwix-serve
@@ -52,6 +53,7 @@ services:
       - "traefik.http.services.kiwix-svc.loadbalancer.server.port=8080"
       # Middleware
       - "traefik.http.routers.kiwix-rtr.middlewares=chain-authelia@file"
+      - "com.centurylinklabs.watchtower.enable=true"
 
 networks:
   traefik_proxy:

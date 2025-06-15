@@ -57,55 +57,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  # db_recipes:
-  #   container_name: tandoor-db
-  #   restart: always
-  #   image: postgres:16-alpine
-  #   volumes:
-  #     - ${APPDATA_DIR}/tandoor/postgresql:/var/lib/postgresql/data
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - cooking
-
-  # web_recipes:
-  #   container_name: tandoor-web
-  #   restart: always
-  #   image: vabene1111/recipes
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - staticfiles:/opt/recipes/staticfiles
-  #     # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
-  #     - nginx_config:/opt/recipes/nginx/conf.d
-  #     - ${APPDATA_DIR}/tandoor/mediafiles:/opt/recipes/mediafiles
-  #   depends_on:
-  #     - db_recipes
-  #   networks:
-  #     - cooking
-
-  # nginx_recipes:
-  #   container_name: tandoor-nginx
-  #   image: nginx:mainline-alpine
-  #   restart: always
-  #   networks:
-  #     - traefik_proxy
-  #     - cooking
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - web_recipes
-  #   volumes:
-  #     # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
-  #     - nginx_config:/etc/nginx/conf.d:ro
-  #     - staticfiles:/static:ro
-  #     - ${APPDATA_DIR}/tandoor/mediafiles:/media:ro
-  #   labels: # traefik example labels
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.recipes-rtr.rule=Host(`recipes.shelbyhomelab.com`)"
-  #     - "traefik.http.routers.recipes-rtr.entrypoints=websecure" # your https endpoint
-  #     - "traefik.http.routers.recipes-rtr.tls.certresolver=dns-cloudflare" # your cert resolver
-    
   paperless-ngx-broker:
     networks:
       - paperless-network
@@ -172,12 +123,9 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
 volumes:
-  # nginx_config:
-  # staticfiles:
   redisdata:
-
+s
 networks:
-  # cooking:
   traefik_proxy:
     name: traefik_proxy
     external: true

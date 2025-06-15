@@ -57,63 +57,129 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  db_recipes:
-    container_name: tandoor-db
-    restart: always
-    image: postgres:16-alpine
-    volumes:
-      - ${APPDATA_DIR}/tandoor/postgresql:/var/lib/postgresql/data
-    env_file:
-      - .env
-    networks:
-      - cooking
+  # db_recipes:
+  #   container_name: tandoor-db
+  #   restart: always
+  #   image: postgres:16-alpine
+  #   volumes:
+  #     - ${APPDATA_DIR}/tandoor/postgresql:/var/lib/postgresql/data
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - cooking
 
-  web_recipes:
-    container_name: tandoor-web
-    restart: always
-    image: vabene1111/recipes
-    env_file:
-      - .env
+  # web_recipes:
+  #   container_name: tandoor-web
+  #   restart: always
+  #   image: vabene1111/recipes
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - staticfiles:/opt/recipes/staticfiles
+  #     # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
+  #     - nginx_config:/opt/recipes/nginx/conf.d
+  #     - ${APPDATA_DIR}/tandoor/mediafiles:/opt/recipes/mediafiles
+  #   depends_on:
+  #     - db_recipes
+  #   networks:
+  #     - cooking
+
+  # nginx_recipes:
+  #   container_name: tandoor-nginx
+  #   image: nginx:mainline-alpine
+  #   restart: always
+  #   networks:
+  #     - traefik_proxy
+  #     - cooking
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - web_recipes
+  #   volumes:
+  #     # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
+  #     - nginx_config:/etc/nginx/conf.d:ro
+  #     - staticfiles:/static:ro
+  #     - ${APPDATA_DIR}/tandoor/mediafiles:/media:ro
+  #   labels: # traefik example labels
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.recipes-rtr.rule=Host(`recipes.shelbyhomelab.com`)"
+  #     - "traefik.http.routers.recipes-rtr.entrypoints=websecure" # your https endpoint
+  #     - "traefik.http.routers.recipes-rtr.tls.certresolver=dns-cloudflare" # your cert resolver
+    
+  paperless-ngx-broker:
+    networks:
+      - paperless-network
+    container_name: paperless-ngx-broker
+    image: docker.io/library/redis:8
+    restart: unless-stopped
     volumes:
-      - staticfiles:/opt/recipes/staticfiles
-      # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
-      - nginx_config:/opt/recipes/nginx/conf.d
-      - ${APPDATA_DIR}/tandoor/mediafiles:/opt/recipes/mediafiles
+      - redisdata:/data
+  
+  paperless-ngx:
+    container_name: paperless-ngx
+    image: ghcr.io/paperless-ngx/paperless-ngx
+    restart: unless-stopped
+    networks:
+      - paperless-network
     depends_on:
-      - db_recipes
-    networks:
-      - cooking
+      - paperless-ngx-broker
+    ports:
+      - "10007:8000"
+    volumes:
+      - ${APPDATA_DIR}/paperless-ngx/data:/usr/src/paperless/data
+      - /paperless-ngx/media:/usr/src/paperless/media
+      - /paperless-ngx/export:/usr/src/paperless/export
+      - /paperless-ngx/import:/usr/src/paperless/consume
+    environment:
+      PAPERLESS_REDIS: redis://paperless-ngx-broker:6379
+      PAPERLESS_DBENGINE: mariadb
+      PAPERLESS_DBHOST: ${MYSQL_ADDRESS}
+      PAPERLESS_DBUSER: ${MYSQL_USERNAME} # only needed if non-default username
+      PAPERLESS_DBPASS: ${MYSQL_PASSWORD} # only needed if non-default password
+      PAPERLESS_DBPORT: 3306
+      PAPERLESS_CONSUMER_POLLING: 10
 
-  nginx_recipes:
-    container_name: tandoor-nginx
-    image: nginx:mainline-alpine
-    restart: always
+  mealie:
+    container_name: mealie
+    image: ghcr.io/mealie-recipes/mealie
+    restart: unless-stopped
     networks:
       - traefik_proxy
-      - cooking
-    env_file:
-      - .env
-    depends_on:
-      - web_recipes
-    volumes:
-      # Do not make this a bind mount, see https://docs.tandoor.dev/install/docker/#volumes-vs-bind-mounts
-      - nginx_config:/etc/nginx/conf.d:ro
-      - staticfiles:/static:ro
-      - ${APPDATA_DIR}/tandoor/mediafiles:/media:ro
-    labels: # traefik example labels
+    ports:
+      - 10020:9000
+    deploy:
+      resources:
+        limits:
+          memory: 1000M
+    volumes: 
+      - ${APPDATA_DIR}/mealie:/app/data
+    environment:
+      ALLOW_SIGNUP: "true"
+      PUID: ${DOCKER_RUNNER_UID}
+      PGID: ${DOCKER_RUNNER_GID}
+      TZ: ${TZ}
+      BASE_URL: https://${MEALIE_URL}
+    labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.recipes-rtr.rule=Host(`recipes.shelbyhomelab.com`)"
-      - "traefik.http.routers.recipes-rtr.entrypoints=websecure" # your https endpoint
-      - "traefik.http.routers.recipes-rtr.tls.certresolver=dns-cloudflare" # your cert resolver
-    
-
+      # HTTP Routers
+      - "traefik.http.routers.mealie-rtr.entrypoints=websecure"
+      - "traefik.http.routers.mealie-rtr.rule=Host(`${MEALIE_URL}`)"
+      # HTTP Services
+      - "traefik.http.routers.mealie-rtr.service=mealie-svc"
+      - "traefik.http.services.mealie-svc.loadbalancer.server.port=9000"
+      # Middleware
+      - "traefik.http.routers.mealie-rtr.middlewares=chain-no-auth@file"
+      - "com.centurylinklabs.watchtower.enable=true"
 
 volumes:
-  nginx_config:
-  staticfiles:
+  # nginx_config:
+  # staticfiles:
+  redisdata:
 
 networks:
-  cooking:
+  # cooking:
   traefik_proxy:
     name: traefik_proxy
     external: true
+  paperless-network:
+    name: paperless-network

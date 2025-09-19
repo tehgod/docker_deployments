@@ -42,7 +42,7 @@ services:
     command:
       - '*.zim'
     volumes:
-      - ${APPDATA_DIR}/kiwix:/data
+      - /data/kiwix:/data
     labels:
       - "traefik.enable=true"
       # HTTP Routers

@@ -9,7 +9,7 @@ services:
       - "UID=${DOCKER_RUNNER_UID}"
       - "GID=${DOCKER_RUNNER_GID}"
     volumes:
-      - /ytdlp-downloads:/downloads
+      - /data/ytdlp-downloads:/downloads
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
@@ -24,7 +24,7 @@ services:
       - 10012:5800
     volumes:
       - ${APPDATA_DIR}/filebot:/config:rw
-      - /home_theater_data/torrents/completed:/storage:rw
+      - /data/home_theater_data/torrents/completed:/storage:rw
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
@@ -54,6 +54,7 @@ services:
     environment:
       - TZ=${TZ}
       - WATCHTOWER_LABEL_ENABLE=1
+      - WATCHTOWER_CLEANUP=1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -72,15 +73,16 @@ services:
     restart: unless-stopped
     networks:
       - paperless-network
+      - traefik_proxy
     depends_on:
       - paperless-ngx-broker
     ports:
       - "10007:8000"
     volumes:
       - ${APPDATA_DIR}/paperless-ngx/data:/usr/src/paperless/data
-      - /paperless-ngx/media:/usr/src/paperless/media
-      - /paperless-ngx/export:/usr/src/paperless/export
-      - /paperless-ngx/import:/usr/src/paperless/consume
+      - /data/paperless-ngx/media:/usr/src/paperless/media
+      - /data/paperless-ngx/export:/usr/src/paperless/export
+      - /data/paperless-ngx/import:/usr/src/paperless/consume
     environment:
       PAPERLESS_REDIS: redis://paperless-ngx-broker:6379
       PAPERLESS_DBENGINE: mariadb
@@ -89,6 +91,18 @@ services:
       PAPERLESS_DBPASS: ${MYSQL_PASSWORD} # only needed if non-default password
       PAPERLESS_DBPORT: 3306
       PAPERLESS_CONSUMER_POLLING: 10
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_URL: https://paperless.$DOMAINNAME_1
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.paperless-rtr.entrypoints=websecure"
+      - "traefik.http.routers.paperless-rtr.rule=Host(`paperless.$DOMAINNAME_1`)"
+      # HTTP Services
+      - "traefik.http.routers.paperless-rtr.service=paperless-svc"
+      - "traefik.http.services.paperless-svc.loadbalancer.server.port=8000"
+      # Middleware
+      - "traefik.http.routers.paperless-rtr.middlewares=chain-authelia@file"
 
   mealie:
     container_name: mealie
@@ -124,7 +138,7 @@ services:
 
 volumes:
   redisdata:
-s
+
 networks:
   traefik_proxy:
     name: traefik_proxy

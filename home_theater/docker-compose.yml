@@ -1,6 +1,6 @@
 services:
   vpn:
-    image: binhex/arch-qbittorrentvpn
+    image: binhex/arch-qbittorrentvpn:5.1.2-1-03
     container_name: qbittorrent
     networks:
       - home_theater_network
@@ -159,6 +159,19 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
+  # huntarr:
+  #   image: huntarr/huntarr
+  #   container_name: huntarr
+  #   restart: always
+  #   ports:
+  #     - "10021:9705"
+  #   volumes:
+  #     - ${APPDATA_DIR}/huntarr:/config
+  #   environment:
+  #     - TZ=${TZ}
+  #   labels:
+  #     - "com.centurylinklabs.watchtower.enable=true"
+
 networks:
   home_theater_network:
     driver: bridge
@@ -166,5 +179,3 @@ networks:
   traefik_proxy:
     driver: bridge
     name: traefik_proxy
-
-

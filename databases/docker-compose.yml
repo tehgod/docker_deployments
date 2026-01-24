@@ -11,11 +11,27 @@ services:
       - ${APPDATA_DIR}/mysql:/var/lib/mysql
     command: mysqld --sql-mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
 
-  mongo:
-    image: mongo:4.4.6
-    restart: always
-    ports:
-      - 27017:27017
+  # mongo:
+  #   image: mongo:4.4.6
+  #   restart: always
+  #   ports:
+  #     - 27017:27017
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
+    restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      ACCEPT_EULA: Y
+      MSSQL_PID: Developer
+    ports:
+      - 1433:1433
+    volumes:
+      - ${APPDATA_DIR}/mssql/data:/var/opt/mssql/data
+      - ${APPDATA_DIR}/mssql/log:/var/opt/mssql/log
+      - ${APPDATA_DIR}/mssql/secrets:/var/opt/mssql/secrets
+      - ${APPDATA_DIR}/mssql/backups:/var/opt/mssql/backups

@@ -1,6 +1,8 @@
 services:
   minecraft:
     image: itzg/minecraft-server:latest
+    container_name: minecraft-server
+    restart: unless-stopped
     environment:
       - EULA=TRUE
       - DIFFICULTY=hard

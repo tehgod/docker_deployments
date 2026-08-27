@@ -1,0 +1,154 @@
+services:
+  vpn-private:
+    image: binhex/arch-qbittorrentvpn
+    container_name: qbittorrent-private
+    networks:
+      - home_theater_network_private
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "8119:8118"
+      - "9119:9118"
+      - "10004:10004"
+      - "5010:5010"
+    environment:
+      - VPN_ENABLED=yes
+      - VPN_USER=${OPENVPN_USERNAME}
+      - VPN_PASS=${OPENVPN_PASSWORD}
+      - VPN_PROV=pia
+      - VPN_CLIENT=openvpn
+      - ENABLE_STARTUP_SCRIPTS=yes
+      - ENABLE_PRIVOXY=yes
+      - STRICT_PORT_FORWARD=yes
+      - USERSPACE_WIREGUARD=no
+      - ENABLE_SOCKS=no
+      - LAN_NETWORK=${HOME_NETWORK}  # Updated LAN network
+      - VPN_INPUT_PORTS=5010
+      - NAME_SERVERS=8.8.8.8,8.8.4.4
+      - DEBUG=false
+      - WEBUI_PORT=10004
+      - UMASK=002
+      - PUID=${HOME_THEATER_UID}  # Updated PUID
+      - PGID=${HOME_THEATER_GID}  # Updated PGID
+      - TZ=${TZ}
+    volumes:
+      - ${HOME_THEATER_DIR}/torrents/private:/data-private
+      - ${APPDATA_DIR}/qbittorrent-private:/config
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  qui:
+    image: ghcr.io/autobrr/qui
+    container_name: qui
+    restart: unless-stopped
+    networks:
+      - home_theater_network_private
+    ports:
+      - "10023:7476"
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+    volumes:
+      - ${APPDATA_DIR}/qui:/config
+      - ${HOME_THEATER_DIR}/torrents/private:/data-private
+      - ${HOME_THEATER_DIR}/torrents/public:/data-public
+      - ${HOME_THEATER_DIR}/media:/media
+
+  prowlarr-private:
+    image: linuxserver/prowlarr
+    container_name: prowlarr-private
+    restart: unless-stopped
+    networks:
+      - home_theater_network_private
+    ports:
+      - "10005:9696"
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/prowlarr-private:/config
+    depends_on:
+      - vpn-private
+
+  radarr-private:
+    image: linuxserver/radarr
+    container_name: radarr-private
+    restart: unless-stopped
+    networks:
+      - home_theater_network_private
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    ports:
+      - 10025:7878
+    volumes:
+      - ${APPDATA_DIR}/radarr-private:/config
+      - ${HOME_THEATER_DIR}:/data
+    depends_on:
+      - prowlarr-private
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  sonarr-private:
+    image: linuxserver/sonarr
+    restart: unless-stopped
+    container_name: sonarr-private
+    networks:
+      - home_theater_network_private
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    ports:
+      - 10026:8989
+    volumes:
+      - ${APPDATA_DIR}/sonarr-private:/config
+      - ${HOME_THEATER_DIR}:/data
+    depends_on:
+      - prowlarr-private
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  mousehole:
+    image: tmmrtn/mousehole
+    container_name: mousehole
+    network_mode: "service:vpn"
+    environment:
+      MOUSEHOLE_AUTH_PASSWORD: ${MOUSEHOLE_AUTH_PASSWORD}
+      MOUSEHOLE_ALLOWED_HOSTS: ${DOCKERHOST_IP}
+    volumes:
+      - ${APPDATA_DIR}/mousehole:/var/lib/mousehole
+
+  # cross-seed:
+  #   image: ghcr.io/cross-seed/cross-seed
+  #   container_name: cross-seed
+  #   restart: unless-stopped
+  #   user: "${HOME_THEATER_UID}:${HOME_THEATER_GID}"
+  #   networks:
+  #     - home_theater_network
+  #   ports:
+  #     - "10025:2468"
+  #   volumes:
+  #     - ${APPDATA_DIR}/cross-seed:/config
+  #     - ${HOME_THEATER_DIR}:/data
+  #   command: daemon
+
+  # autobrr:
+  #   image: ghcr.io/autobrr/autobrr
+  #   container_name: autobrr
+  #   restart: unless-stopped
+  #   user: ${HOME_THEATER_UID}:${HOME_THEATER_GID}
+  #   environment:
+  #     - TZ=${TZ}
+  #   volumes:
+  #     - ${APPDATA_DIR}/autobrr:/config
+  #   ports:
+  #     - 7474:7474
+    
+networks:
+  home_theater_network_private:
+    driver: bridge
+    name: home_theater_network_private

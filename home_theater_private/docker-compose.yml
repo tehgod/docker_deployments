@@ -44,6 +44,7 @@ services:
     restart: unless-stopped
     networks:
       - home_theater_network_private
+      - home_theater_network_public
     ports:
       - "10023:7476"
     environment:
@@ -115,7 +116,7 @@ services:
   mousehole:
     image: tmmrtn/mousehole
     container_name: mousehole
-    network_mode: "service:vpn"
+    network_mode: "service:vpn-private"
     environment:
       MOUSEHOLE_AUTH_PASSWORD: ${MOUSEHOLE_AUTH_PASSWORD}
       MOUSEHOLE_ALLOWED_HOSTS: ${DOCKERHOST_IP}
@@ -136,19 +137,22 @@ services:
   #     - ${HOME_THEATER_DIR}:/data
   #   command: daemon
 
-  # autobrr:
-  #   image: ghcr.io/autobrr/autobrr
-  #   container_name: autobrr
-  #   restart: unless-stopped
-  #   user: ${HOME_THEATER_UID}:${HOME_THEATER_GID}
-  #   environment:
-  #     - TZ=${TZ}
-  #   volumes:
-  #     - ${APPDATA_DIR}/autobrr:/config
-  #   ports:
-  #     - 7474:7474
+  autobrr:
+    image: ghcr.io/autobrr/autobrr
+    container_name: autobrr
+    restart: unless-stopped
+    user: ${HOME_THEATER_UID}:${HOME_THEATER_GID}
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/autobrr:/config
+    ports:
+      - 10027:7474
     
 networks:
   home_theater_network_private:
     driver: bridge
     name: home_theater_network_private
+  home_theater_network_public:
+    driver: bridge
+    name: home_theater_network_public

@@ -51,9 +51,9 @@ services:
     volumes:
       - ${APPDATA_DIR}/prowlarr-public:/config
     depends_on:
-      - vpn
+      - vpn-public
     labels:
-      - "com.centurylinklabs.watchtower.enabldoce=true"
+      - "com.centurylinklabs.watchtower.enable=true"
 
   radarr-public:
     image: linuxserver/radarr
@@ -68,10 +68,10 @@ services:
     ports:
       - 10001:7878
     volumes:
-      - ${APPDATA_DIR}/radarr:/config
+      - ${APPDATA_DIR}/radarr-public:/config
       - ${HOME_THEATER_DIR}:/data
     depends_on:
-      - prowlarr
+      - prowlarr-public
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
@@ -88,10 +88,10 @@ services:
     ports:
       - 10002:8989
     volumes:
-      - ${APPDATA_DIR}/sonarr:/config
+      - ${APPDATA_DIR}/sonarr-public:/config
       - ${HOME_THEATER_DIR}:/data
     depends_on:
-      - prowlarr
+      - prowlarr-public
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
@@ -111,7 +111,7 @@ services:
       - ${APPDATA_DIR}/bazarr:/config
       - ${HOME_THEATER_DIR}:/data
     depends_on:
-      - prowlarr
+      - prowlarr-public
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
   
@@ -133,8 +133,8 @@ services:
     restart: unless-stopped
     user: "${HOME_THEATER_UID}:${HOME_THEATER_GID}"
     depends_on:
-      - radarr
-      - sonarr
+      - radarr-public
+      - sonarr-public
     labels:
       - "traefik.enable=true"
       # HTTP Routers

@@ -3,7 +3,7 @@ services:
     image: binhex/arch-qbittorrentvpn
     container_name: qbittorrent-public
     networks:
-      - home_theater_network
+      - home_theater_network_public
     cap_add:
       - NET_ADMIN
     ports:
@@ -41,7 +41,7 @@ services:
     container_name: prowlarr-public
     restart: unless-stopped
     networks:
-      - home_theater_network
+      - home_theater_network_public
     ports:
       - 10024:9696
     environment:
@@ -60,7 +60,7 @@ services:
     container_name: radarr-public
     restart: unless-stopped
     networks:
-      - home_theater_network
+      - home_theater_network_public
     environment:
       - PUID=${HOME_THEATER_UID}
       - PGID=${HOME_THEATER_GID}
@@ -80,7 +80,7 @@ services:
     restart: unless-stopped
     container_name: sonarr-public
     networks:
-      - home_theater_network
+      - home_theater_network_public
     environment:
       - PUID=${HOME_THEATER_UID}
       - PGID=${HOME_THEATER_GID}
@@ -100,7 +100,7 @@ services:
     restart: unless-stopped
     container_name: bazarr
     networks:
-      - home_theater_network
+      - home_theater_network_public
     environment:
       - PUID=${HOME_THEATER_UID}
       - PGID=${HOME_THEATER_GID}
@@ -120,7 +120,7 @@ services:
     container_name: seerr
     init: true
     networks:
-      - home_theater_network
+      - home_theater_network_public
       - traefik_proxy
     environment:
       - LOG_LEVEL=debug
@@ -171,9 +171,9 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
 networks:
-  home_theater_network:
+  home_theater_network_public:
     driver: bridge
-    name: home_theater_network
+    name: home_theater_network_public
   traefik_proxy:
     driver: bridge
     name: traefik_proxy

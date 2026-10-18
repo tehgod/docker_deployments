@@ -1,0 +1,284 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 10004:8080
+      - 5010:5010
+      - 10022:10022
+    environment:
+      VPN_SERVICE_PROVIDER: protonvpn
+      VPN_TYPE: wireguard
+      WIREGUARD_PRIVATE_KEY: ${AARON_PRIVATE_KEY}
+      PORT_FORWARD_ONLY: "on"
+      VPN_PORT_FORWARDING: "on"
+      SERVER_CITIES: Chicago
+      # VPN_SERVICE_PROVIDER: private internet access
+      # VPN_TYPE: openvpn
+      # OPENVPN_USER: ${OPENVPN_USERNAME}      # PIA account creds — used to auto-generate the WG key
+      # OPENVPN_PASSWORD: ${OPENVPN_PASSWORD}
+      # SERVER_NAMES: montreal426         # PIA uses "regions", not "countries" — must be a P2P/port-forward-capable region
+      # VPN_PORT_FORWARDING: "on"
+
+      VPN_PORT_FORWARDING_UP_COMMAND: >-
+        /bin/sh -c
+        'wget -O- -nv --retry-connrefused
+        --post-data "json={\"listen_port\":{{PORT}},
+        \"current_network_interface\":\"{{VPN_INTERFACE}}\",
+        \"random_port\":false,\"upnp\":false}"
+        http://127.0.0.1:8080/api/v2/app/setPreferences'
+
+      # When the VPN/forwarded port disappears, reset qBittorrent.
+      # This is important because qBittorrent otherwise has a problem
+      # re-establishing forwarding after a disconnect.
+      VPN_PORT_FORWARDING_DOWN_COMMAND: >-
+        /bin/sh -c
+        'wget -O- -nv --retry-connrefused
+        --post-data "json={\"listen_port\":0,
+        \"current_network_interface\":\"lo\"}"
+        http://127.0.0.1:8080/api/v2/app/setPreferences'
+
+  mousehole:
+    image: tmmrtn/mousehole
+    container_name: mousehole
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      MOUSEHOLE_AUTH_PASSWORD: ${MOUSEHOLE_AUTH_PASSWORD}
+      MOUSEHOLE_ALLOWED_HOSTS: ${DOCKERHOST_IP}
+    volumes:
+      - ${APPDATA_DIR}/mousehole:/var/lib/mousehole
+
+  qui:
+    image: ghcr.io/autobrr/qui
+    container_name: qui
+    restart: unless-stopped
+    networks:
+      - home_theater_network
+    ports:
+      - "10023:7476"
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+    volumes:
+      - ${APPDATA_DIR}/qui:/config
+      - ${HOME_THEATER_DIR}/torrents/private:/data-private
+      - ${HOME_THEATER_DIR}/torrents/autobrr:/data-autobrr
+      - ${HOME_THEATER_DIR}/torrents/public:/data-public
+      - ${HOME_THEATER_DIR}/media:/media
+
+  qbittorrent-private:
+    image: linuxserver/qbittorrent
+    container_name: qbittorrent-private
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${APPDATA_DIR}/qbittorrent-private:/config
+      - ${HOME_THEATER_DIR}/torrents/private:/data-private
+      - ${HOME_THEATER_DIR}/torrents/autobrr:/data-autobrr
+      - ${HOME_THEATER_DIR}/media:/media
+    stop_grace_period: "10s" #optional
+    restart: unless-stopped
+
+  qbittorrent-public:
+    image: linuxserver/qbittorrent
+    container_name: qbittorrent-public
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+      - WEBUI_PORT=10022
+    volumes:
+      - ${APPDATA_DIR}/qbittorrent-public:/config
+      - ${HOME_THEATER_DIR}/torrents/public:/data-public
+      - ${HOME_THEATER_DIR}/torrents/autobrr:/data-autobrr
+      - ${HOME_THEATER_DIR}/media:/media
+    stop_grace_period: "10s" #optional
+    restart: unless-stopped
+
+  seerr:
+    image: ghcr.io/seerr-team/seerr
+    container_name: seerr
+    init: true
+    networks:
+      - home_theater_network
+      - traefik_proxy
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TZ}
+      - PORT=5055
+    ports:
+      - 10006:5055
+    volumes:
+      - ${APPDATA_DIR}/overseerr:/app/config
+    restart: unless-stopped
+    user: "${HOME_THEATER_UID}:${HOME_THEATER_GID}"
+    depends_on:
+      - radarr
+      - sonarr
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.overseerr-rtr.entrypoints=websecure"
+      - "traefik.http.routers.overseerr-rtr.rule=Host(`request.$DOMAINNAME_1`)"
+      # HTTP Services
+      - "traefik.http.routers.overseerr-rtr.middlewares=chain-no-auth@file"
+      - "traefik.http.routers.overseerr-rtr.service=overseerr-svc"
+      - "traefik.http.services.overseerr-svc.loadbalancer.server.port=5055"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  prowlarr-private:
+    image: linuxserver/prowlarr
+    container_name: prowlarr-private
+    restart: unless-stopped
+    networks:
+      - home_theater_network
+    ports:
+      - "10005:9696"
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/prowlarr-private:/config
+    depends_on:
+      - qbittorrent-private
+
+  prowlarr-public:
+    image: linuxserver/prowlarr
+    container_name: prowlarr-public
+    restart: unless-stopped
+    networks:
+      - home_theater_network
+    ports:
+      - 10024:9696
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/prowlarr-public:/config
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr-public
+    restart: unless-stopped
+    networks:
+      - home_theater_network
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    ports:
+      - 10001:7878
+    volumes:
+      - ${APPDATA_DIR}/radarr-public:/config
+      - ${HOME_THEATER_DIR}:/data
+    depends_on:
+      - prowlarr-public
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  sonarr:
+    image: linuxserver/sonarr
+    restart: unless-stopped
+    container_name: sonarr-public
+    networks:
+      - home_theater_network
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    ports:
+      - 10002:8989
+    volumes:
+      - ${APPDATA_DIR}/sonarr-public:/config
+      - ${HOME_THEATER_DIR}:/data
+    depends_on:
+      - prowlarr-public
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  autobrr:
+    image: ghcr.io/autobrr/autobrr
+    container_name: autobrr
+    networks:
+      - home_theater_network
+    restart: unless-stopped
+    user: ${HOME_THEATER_UID}:${HOME_THEATER_GID}
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/autobrr:/config
+    ports:
+      - 10027:7474
+    
+  bazarr:
+    image: linuxserver/bazarr
+    restart: unless-stopped
+    container_name: bazarr
+    networks:
+      - home_theater_network
+    environment:
+      - PUID=${HOME_THEATER_UID}
+      - PGID=${HOME_THEATER_GID}
+      - TZ=${TZ}
+    ports:
+      - 10018:6767
+    volumes:
+      - ${APPDATA_DIR}/bazarr:/config
+      - ${HOME_THEATER_DIR}:/data
+    depends_on:
+      - prowlarr-public
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+  
+  kavita:
+    image: jvmilazz0/kavita
+    container_name: kavita
+    networks:
+      - traefik_proxy
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${HOME_THEATER_DIR}:/data
+      - ${APPDATA_DIR}/kavita:/kavita/config
+    ports:
+      - 10017:5000
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      # HTTP Routers
+      - "traefik.http.routers.kavita-rtr.entrypoints=websecure"
+      - "traefik.http.routers.kavita-rtr.rule=Host(`kavita.$DOMAINNAME_1`)"
+      # HTTP Services
+      - "traefik.http.routers.kavita-rtr.middlewares=chain-authelia@file"
+      - "traefik.http.routers.kavita-rtr.service=kavita-svc"
+      - "traefik.http.services.kavita-svc.loadbalancer.server.port=5000"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  home_theater_network:
+    driver: bridge
+    name: home_theater_network
+  traefik_proxy:
+    driver: bridge
+    name: traefik_proxy
